@@ -1,22 +1,41 @@
 import React, { useState } from 'react';
 import { Mail, CheckCircle2, X, Send, Copy, Check, ExternalLink, ShieldCheck } from 'lucide-react';
+import { BrandProfile } from '../utils/brandEngine';
 
 interface EmailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenDrive: () => void;
+  brand?: BrandProfile;
 }
 
-export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, onOpenDrive }) => {
+export const EmailModal: React.FC<EmailModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onOpenDrive,
+  brand = {
+    name: "Lumière Botanics",
+    domain: "lumiere-botanics.com",
+    productName: "Glow Serum Bio-Activo",
+    industry: "skincare",
+    clientEmail: "marketing.lead@lumiere-botanics.com",
+    clientContact: "Sofía Martínez",
+    primaryEmoji: "🧴",
+    accentV1: "#2dd4bf",
+    accentV2: "#f59e0b",
+    gradientV1: "",
+    gradientV2: ""
+  }
+}) => {
   const [copied, setCopied] = useState(false);
   const [sentNotice, setSentNotice] = useState(false);
 
   if (!isOpen) return null;
 
-  const emailSubject = "✨ [Aprobación Campaña Q4] 12 Formatos Multicanal + 1 Video Veo (10s) Listos en Drive";
+  const emailSubject = `✨ [Aprobación Campaña Q4] 12 Formatos Multicanal + 1 Video Veo (10s) Listos en Drive — ${brand.name}`;
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText(`Asunto: ${emailSubject}\nPara: sofia.martinez@lumiere-botanics.com\n\nEstimada Sofía y equipo de Lumière Botanics,\n\nConforme a lo solicitado, nuestro Agente Creativo de Google Cloud ha procesado y adaptado la suite completa de creativos para el lanzamiento de la Campaña Q4 Glow Serum.\n\nSe han generado 12 formatos de imagen optimizados para cada canal (Meta, TikTok, Google Display, YouTube, Pinterest) y 1 video cinemático vertical de 10 segundos renderizado con Google Veo.\n\nAdicionalmente, se aplicaron todos los ajustes solicitados:\n1. Calibración a paleta cálida y dorada (Golden Hour).\n2. Integración de llamadas de urgencia con el cupón '-20% OFF' (código GLOW20).\n3. Reencuadre y enfoque de modelo sonriendo a cámara.\n\nPuedes revisar todos los archivos organizados por canal en la siguiente carpeta compartida de Google Drive:\nhttps://drive.google.com/drive/folders/18kZ-LUMIERE-BOTANICS-Q4-CAMPAIGN\n\nQuedamos atentos a su visto bueno final para proceder a la carga en Google Ads y Meta Ads Manager.`);
+    navigator.clipboard.writeText(`Asunto: ${emailSubject}\nPara: ${brand.clientEmail}\n\nEstimado ${brand.clientContact},\n\nConforme a lo solicitado, nuestro Agente Creativo de Google Cloud ha procesado y adaptado la suite completa de creativos para el lanzamiento de la Campaña Q4 para ${brand.productName}.\n\nSe han generado 12 formatos de imagen optimizados para cada canal (Meta, TikTok, Google Display, YouTube, Pinterest) y 1 video cinemático vertical de 10 segundos renderizado con Google Veo.\n\nAdicionalmente, se aplicaron todos los ajustes solicitados:\n1. Calibración a paleta cálida y dorada (Golden Hour).\n2. Integración de llamadas de urgencia con el cupón '-20% OFF'.\n3. Reencuadre y enfoque optimizado para conversión.\n\nPuedes revisar todos los archivos organizados por canal en la siguiente carpeta compartida de Google Drive:\nhttps://drive.google.com/drive/folders/18kZ-${brand.name.toUpperCase().replace(/\s+/g, '-')}-Q4-CAMPAIGN\n\nQuedamos atentos a su visto bueno final para proceder a la carga en Google Ads y Meta Ads Manager.`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -71,8 +90,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, onOpenD
 
           <div className="flex items-center space-x-2 text-gray-300">
             <span className="text-gray-400">Para:</span>
-            <span className="text-white font-medium">sofia.martinez@lumiere-botanics.com</span>
-            <span className="text-gray-400 font-sans text-[11px]">(Marketing Director)</span>
+            <span className="text-white font-medium">{brand.clientEmail}</span>
+            <span className="text-gray-400 font-sans text-[11px]">({brand.clientContact})</span>
           </div>
 
           <div className="flex items-center space-x-2 text-gray-400">
@@ -89,11 +108,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, onOpenD
         {/* Email Body Content */}
         <div className="p-6 overflow-y-auto flex-1 text-sm text-gray-300 space-y-4 leading-relaxed font-sans bg-[#1a1b1d]">
           <p>
-            Estimada Sofía y equipo de <strong>Lumière Botanics</strong>,
+            Estimado <strong>{brand.clientContact}</strong>,
           </p>
 
           <p>
-            Conforme a lo acordado en nuestra sesión de hoy, nuestro <strong>Agente Creativo de Google Cloud</strong> ha concluido la generación, adaptación multicanal y clasificación de los activos para la <strong>Campaña Q4 Glow Serum</strong>.
+            Conforme a lo acordado en nuestra sesión de hoy, nuestro <strong>Agente Creativo de Google Cloud</strong> ha concluido la generación, adaptación multicanal y clasificación de los activos para la <strong>Campaña Q4 de {brand.name} ({brand.productName})</strong>.
           </p>
 
           <div className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-2">
@@ -103,7 +122,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, onOpenD
             <ul className="text-xs space-y-1 text-gray-300 list-disc list-inside">
               <li><strong>12 Formatos de Imagen</strong> (Meta Feed 1:1, Stories 9:16, TikTok 9:16, Google Display 300x250, 728x90, 300x600, Carruseles y Pinterest) generados con <em>Imagen 3</em>.</li>
               <li><strong>1 Video Cinemático Vertical de 10 segundos</strong> sintetizado a 60 FPS con <em>Google Veo (VideoFX)</em>.</li>
-              <li><strong>Cambios Solicitados Aplicados (v2)</strong>: Balance de color más cálido (Sunset Glow), inclusión de badges y copys de urgencia <em>"-20% OFF con código GLOW20"</em> y reencuadre directo de modelo.</li>
+              <li><strong>Cambios Solicitados Aplicados (v2)</strong>: Balance de color más cálido (Sunset Glow), inclusión de badges y copys de urgencia <em>"-20% OFF en primera orden"</em> y reencuadre dinámico.</li>
             </ul>
           </div>
 
@@ -111,7 +130,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, onOpenD
             <div className="space-y-0.5">
               <div className="font-semibold text-white text-xs">Carpeta de Google Drive Lista:</div>
               <div className="text-[11px] text-emerald-300 font-mono truncate max-w-sm">
-                /Campaña Q4 - Brand Launch (13 Activos Clasificados)
+                /Campaña Q4 — {brand.name} (13 Activos Clasificados)
               </div>
             </div>
 

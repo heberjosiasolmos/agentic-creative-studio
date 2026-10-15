@@ -25,6 +25,7 @@ interface RightPanelProps {
   onOpenEmail: () => void;
   driveReady: boolean;
   emailReady: boolean;
+  brandName?: string;
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({
@@ -36,7 +37,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   onOpenDrive,
   onOpenEmail,
   driveReady,
-  emailReady
+  emailReady,
+  brandName = "Lumière Botanics"
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -236,6 +238,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                   creative={creative}
                   version={version}
                   onInspect={onInspectCreative}
+                  brandName={brandName}
                 />
               ))}
             </div>

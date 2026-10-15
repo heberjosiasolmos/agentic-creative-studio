@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MOCK_CREATIVES, MOCK_VIDEO } from '../data/mockCreatives';
+import { CreativeFormat, VideoSpec } from '../types';
 import { 
   FolderSync, 
   Folder, 
@@ -17,9 +17,18 @@ import {
 interface DriveModalProps {
   isOpen: boolean;
   onClose: () => void;
+  brandName?: string;
+  creatives: CreativeFormat[];
+  video: VideoSpec;
 }
 
-export const DriveModal: React.FC<DriveModalProps> = ({ isOpen, onClose }) => {
+export const DriveModal: React.FC<DriveModalProps> = ({ 
+  isOpen, 
+  onClose,
+  brandName = "Lumière Botanics",
+  creatives,
+  video
+}) => {
   const [copied, setCopied] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<string>('all');
 
@@ -34,12 +43,12 @@ export const DriveModal: React.FC<DriveModalProps> = ({ isOpen, onClose }) => {
   ];
 
   const filteredCreatives = selectedFolder === 'all' 
-    ? MOCK_CREATIVES 
-    : MOCK_CREATIVES.filter(c => c.drivePath.startsWith(selectedFolder));
+    ? creatives 
+    : creatives.filter(c => c.drivePath.startsWith(selectedFolder));
 
   const showVideo = selectedFolder === 'all' || selectedFolder === '04_Video_Veo_Master';
 
-  const driveUrl = "https://drive.google.com/drive/folders/18kZ-LUMIERE-BOTANICS-Q4-CAMPAIGN";
+  const driveUrl = `https://drive.google.com/drive/folders/18kZ-${brandName.toUpperCase().replace(/\s+/g, '-')}-Q4-CAMPAIGN`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(driveUrl);
@@ -66,7 +75,7 @@ export const DriveModal: React.FC<DriveModalProps> = ({ isOpen, onClose }) => {
                 </span>
               </div>
               <p className="text-xs text-gray-400">
-                Carpeta: <code className="text-gray-300 font-mono">/Google Drive/Clientes/Lumière Botanics/Campaña Q4/</code>
+                Carpeta: <code className="text-gray-300 font-mono">/Google Drive/Clientes/{brandName}/Campaña Q4/</code>
               </p>
             </div>
           </div>

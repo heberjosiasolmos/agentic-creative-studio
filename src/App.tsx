@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StepNumber, CreativeFormat, AgentLog } from './types';
-import { MOCK_CREATIVES, MOCK_VIDEO, INITIAL_URL, STEP_PRESETS } from './data/mockCreatives';
+import { INITIAL_URL, STEP_PRESETS } from './data/mockCreatives';
+import { parseBrandFromUrl, generateDynamicCreatives } from './utils/brandEngine';
 import { Header } from './components/Header';
 import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
@@ -20,6 +21,10 @@ export const App: React.FC = () => {
   const [driveReady, setDriveReady] = useState<boolean>(false);
   const [emailReady, setEmailReady] = useState<boolean>(false);
 
+  // Dynamic brand profile and creatives calculation based on ANY url
+  const brandProfile = useMemo(() => parseBrandFromUrl(urlContext), [urlContext]);
+  const { creatives, video } = useMemo(() => generateDynamicCreatives(brandProfile), [brandProfile]);
+
   const [logs, setLogs] = useState<AgentLog[]>([
     {
       id: 'init-1',
@@ -32,7 +37,7 @@ export const App: React.FC = () => {
       id: 'init-2',
       timestamp: '10:28:18',
       tool: 'Gemini 2.0 Flash',
-      message: 'Listo para recibir URL de contexto o ejecutar los 3 pasos de la demo.',
+      message: 'Motor semántico multicanal listo para procesar cualquier URL de marca o producto.',
       type: 'success'
     }
   ]);
@@ -69,22 +74,26 @@ export const App: React.FC = () => {
       setDriveReady(false);
       setEmailReady(false);
 
-      addLog('Gemini 2.0 Flash', `Extrayendo contexto de: ${urlContext}...`, 'info');
+      addLog('Gemini 2.0 Flash', `Extrayendo contexto semántico y visual de: ${urlContext}...`, 'info');
 
       setTimeout(() => {
-        addLog('Gemini 2.0 Flash', 'Análisis semántico completado: Nicho Skincare Botánico, paleta verde/esmeralda, tono aspiracional.', 'info');
+        addLog(
+          'Gemini 2.0 Flash', 
+          `Marca detectada: "${brandProfile.name}" • Producto: "${brandProfile.productName}" • Industria: ${brandProfile.industry.toUpperCase()}`, 
+          'info'
+        );
       }, 700);
 
       setTimeout(() => {
-        addLog('Imagen 3', 'Generando 12 adaptaciones de imagen multicanal (Meta, TikTok, GDN, Pinterest, Carruseles)...', 'tool');
+        addLog('Imagen 3', `Generando 12 adaptaciones de imagen multicanal para ${brandProfile.name} (Meta, TikTok, GDN, Pinterest, Carruseles)...`, 'tool');
       }, 1400);
 
       setTimeout(() => {
-        addLog('Google Veo', 'Sintetizando video vertical cinemático de 10s (1080x1920 @ 60fps) con audio ambiental adaptativo...', 'tool');
+        addLog('Google Veo', `Sintetizando video vertical cinemático de 10s (1080x1920 @ 60fps) adaptado a ${brandProfile.name}...`, 'tool');
       }, 2100);
 
       setTimeout(() => {
-        addLog('Gemini 2.0 Flash', '¡Generación completada con éxito! 12 formatos de imagen y 1 video de 10s listos en pantalla.', 'success');
+        addLog('Gemini 2.0 Flash', `¡Generación completada! 12 formatos y 1 video de 10s listos para ${brandProfile.name}.`, 'success');
         setIsGenerating(false);
       }, 2800);
 
@@ -92,41 +101,41 @@ export const App: React.FC = () => {
       setCurrentStep(2);
       setVersion('v2');
 
-      addLog('Gemini 2.0 Flash', 'Procesando feedback de cliente: Paleta cálida (sunset amber), badge de urgencia "-20% OFF" y modelo sonriendo.', 'refine');
+      addLog('Gemini 2.0 Flash', `Procesando feedback de cliente para ${brandProfile.name}: Paleta cálida sunset, urgencia "-20% OFF" y modelo sonriendo.`, 'refine');
 
       setTimeout(() => {
-        addLog('Nano Banana', 'Motor de micro-edición ultrarrápida activado: re-calibrando balance cromático y calidez en los 12 formatos...', 'tool');
+        addLog('Nano Banana', `Motor de micro-edición ultrarrápida activado: re-calibrando balance cromático en los 12 formatos de ${brandProfile.name}...`, 'tool');
       }, 800);
 
       setTimeout(() => {
-        addLog('Imagen 3', 'Re-renderizando assets con iluminación de hora dorada y sellos de aprobación clínica...', 'tool');
+        addLog('Imagen 3', `Re-renderizando assets con iluminación de hora dorada y badges promocionales...`, 'tool');
       }, 1600);
 
       setTimeout(() => {
-        addLog('Google Veo', 'Actualizando cinemática de 10s: modelo sonriendo a cámara + animación del código GLOW20...', 'tool');
+        addLog('Google Veo', `Actualizando cinemática de 10s: modelo sonriendo + animación de descuento 20% OFF...`, 'tool');
       }, 2300);
 
       setTimeout(() => {
-        addLog('Nano Banana', '¡Feedback aplicado! 12 formatos actualizados a versión v2 y video de 10s sincronizado.', 'success');
+        addLog('Nano Banana', `¡Feedback aplicado! 12 formatos actualizados a versión v2 y video de 10s sincronizado para ${brandProfile.name}.`, 'success');
         setIsGenerating(false);
       }, 3000);
 
     } else if (targetStep === 3) {
       setCurrentStep(3);
 
-      addLog('Google Drive API', 'Iniciando clasificación de activos: 4 carpetas organizadas por canal en Google Drive...', 'tool');
+      addLog('Google Drive API', `Iniciando clasificación de activos: creando /Google Drive/Clientes/${brandProfile.name}/Campaña Q4/...`, 'tool');
 
       setTimeout(() => {
-        addLog('Google Drive API', 'Subiendo 12 archivos PNG Lossless + 1 Master MP4 4K a /Google Drive/Campaña Q4/...', 'tool');
+        addLog('Google Drive API', `Subiendo 12 archivos PNG Lossless + 1 Master MP4 4K a las 4 subcarpetas organizadas...`, 'tool');
         setDriveReady(true);
       }, 900);
 
       setTimeout(() => {
-        addLog('Gmail Dispatcher', 'Generando borrador ejecutivo para el cliente con enlace seguro a Drive y previsualizaciones...', 'tool');
+        addLog('Gmail Dispatcher', `Generando borrador ejecutivo para ${brandProfile.clientEmail} con enlace seguro a Drive...`, 'tool');
       }, 1700);
 
       setTimeout(() => {
-        addLog('Gmail Dispatcher', '✓ Correo de confirmación y entrega despachado exitosamente a sofia.martinez@lumiere-botanics.com', 'success');
+        addLog('Gmail Dispatcher', `✓ Correo de confirmación despachado exitosamente a ${brandProfile.clientEmail}`, 'success');
         setEmailReady(true);
         setIsGenerating(false);
         setIsDriveModalOpen(true); // Open drive directly for wow-factor
@@ -204,8 +213,8 @@ export const App: React.FC = () => {
 
         {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
         <RightPanel
-          creatives={MOCK_CREATIVES}
-          video={MOCK_VIDEO}
+          creatives={creatives}
+          video={video}
           version={version}
           currentStep={currentStep}
           onInspectCreative={(c) => setSelectedCreative(c)}
@@ -213,13 +222,17 @@ export const App: React.FC = () => {
           onOpenEmail={() => setIsEmailModalOpen(true)}
           driveReady={driveReady}
           emailReady={emailReady}
+          brandName={brandProfile.name}
         />
       </div>
 
-      {/* Modals */}
+      {/* Modals with dynamic Brand info */}
       <DriveModal
         isOpen={isDriveModalOpen}
         onClose={() => setIsDriveModalOpen(false)}
+        brandName={brandProfile.name}
+        creatives={creatives}
+        video={video}
       />
 
       <EmailModal
@@ -229,6 +242,7 @@ export const App: React.FC = () => {
           setIsEmailModalOpen(false);
           setIsDriveModalOpen(true);
         }}
+        brand={brandProfile}
       />
 
       <DetailModal

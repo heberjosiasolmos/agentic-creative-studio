@@ -6,12 +6,14 @@ interface CreativeCardProps {
   creative: CreativeFormat;
   version: 'v1' | 'v2';
   onInspect: (creative: CreativeFormat) => void;
+  brandName?: string;
 }
 
 export const CreativeCard: React.FC<CreativeCardProps> = ({
   creative,
   version,
-  onInspect
+  onInspect,
+  brandName = "LUMIÈRE"
 }) => {
   const headline = version === 'v2' ? creative.headlineV2 : creative.headlineV1;
   const subheadline = version === 'v2' ? creative.subheadlineV2 : creative.subheadlineV1;
@@ -62,8 +64,8 @@ export const CreativeCard: React.FC<CreativeCardProps> = ({
             {badge}
           </span>
 
-          <span className="text-[9px] font-mono text-white/70">
-            LUMIÈRE
+          <span className="text-[9px] font-mono text-white/70 uppercase">
+            {brandName}
           </span>
         </div>
 
