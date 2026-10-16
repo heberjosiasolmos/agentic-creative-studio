@@ -22,6 +22,8 @@ export interface CreativeFormat {
   accentColorV1: string;
   accentColorV2: string;
   productImg: string;
+  imageUrlV1: string;
+  imageUrlV2: string;
   model: 'Imagen 3' | 'Nano Banana';
   fileSize: string;
   drivePath: string;
@@ -35,6 +37,8 @@ export interface VideoSpec {
   resolution: string; // "1080x1920"
   aspectRatio: string; // "9:16"
   fps: number;
+  videoSrcV1: string;
+  videoSrcV2: string;
   promptV1: string;
   promptV2: string;
   titleV1: string;

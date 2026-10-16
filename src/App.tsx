@@ -249,6 +249,7 @@ export const App: React.FC = () => {
         creative={selectedCreative}
         version={version}
         onClose={() => setSelectedCreative(null)}
+        brandName={brandProfile.name}
       />
 
     </div>
