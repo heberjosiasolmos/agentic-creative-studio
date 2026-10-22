@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StepNumber, AgentLog } from '../types';
 import { STEP_PRESETS, INITIAL_URL } from '../data/mockCreatives';
 import { 
@@ -25,6 +25,7 @@ interface LeftPanelProps {
   logs: AgentLog[];
   urlContext: string;
   setUrlContext: (url: string) => void;
+  activePrompt?: string;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({
@@ -33,11 +34,18 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
   onExecutePrompt,
   logs,
   urlContext,
-  setUrlContext
+  setUrlContext,
+  activePrompt
 }) => {
-  const [promptInput, setPromptInput] = useState<string>(STEP_PRESETS[currentStep].prompt);
+  const [promptInput, setPromptInput] = useState<string>(activePrompt || STEP_PRESETS[currentStep].prompt);
   const [showLogs, setShowLogs] = useState<boolean>(true);
   const [campaignGoal, setCampaignGoal] = useState<'conversions' | 'awareness' | 'retargeting'>('conversions');
+
+  useEffect(() => {
+    if (activePrompt) {
+      setPromptInput(activePrompt);
+    }
+  }, [activePrompt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

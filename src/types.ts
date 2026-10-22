@@ -1,5 +1,5 @@
 export type StepNumber = 1 | 2 | 3;
-export type ActiveView = 'studio' | 'vault';
+export type ActiveView = 'studio' | 'vault' | 'analytics';
 
 export interface CreativeFormat {
   id: string;
@@ -124,4 +124,78 @@ export interface FullBrandContext {
   products: BrandProduct[];
   agentDirectives: string; // Directivas permanentes para Gemini 2.0, Imagen 3 y Veo
   updatedAt: string;
+}
+
+// ----------------------------------------------------
+// FASE 2: PERFORMANCE ANALYTICS & CREATIVE INTELLIGENCE
+// ----------------------------------------------------
+
+export type CreativeStatus = 'top_performer' | 'scaling' | 'fatigued' | 'testing';
+
+export interface CreativePerformanceItem {
+  id: string;
+  formatId: string;
+  name: string;
+  channel: 'Meta Ads' | 'Google Ads' | 'TikTok' | 'Amazon Ads';
+  aspectRatio: string;
+  thumbnailUrl: string;
+  spend: number;
+  revenue: number;
+  roas: number;
+  ctr: number; // porcentaje, ej. 3.42
+  cpa: number; // USD
+  impressions: number;
+  frequency: number; // ej. 4.8
+  fatigueScore: number; // 0 a 100
+  status: CreativeStatus;
+  winningHook: string;
+  recommendedAction: string;
+  suggestedPrompt: string;
+}
+
+export interface SearchTermInsight {
+  id: string;
+  term: string;
+  channel: 'Google Search' | 'Amazon Ads' | 'TikTok Search';
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  roas: number;
+  conversionRate: number;
+  coverageStatus: 'uncovered' | 'low_relevance' | 'covered';
+  intentCategory: 'problem_solution' | 'ingredient_focus' | 'comparison' | 'urgency';
+  suggestedPrompt: string;
+}
+
+export interface ChannelMetricSummary {
+  channel: string;
+  spend: number;
+  roas: number;
+  conversions: number;
+  activeCreatives: number;
+  fatiguedCreatives: number;
+}
+
+export interface StrategicInsight {
+  id: string;
+  type: 'critical' | 'opportunity' | 'scale';
+  title: string;
+  description: string;
+  metricImpact: string;
+  actionLabel: string;
+  promptToExecute: string;
+}
+
+export interface BrandAnalyticsData {
+  brandId: string;
+  blendedRoas: number;
+  totalSpend: number;
+  totalRevenue: number;
+  avgCpa: number;
+  avgCtr: number;
+  creativeHealthScore: number; // 0 - 100
+  channels: ChannelMetricSummary[];
+  creatives: CreativePerformanceItem[];
+  searchTerms: SearchTermInsight[];
+  aiStrategicInsights: StrategicInsight[];
 }

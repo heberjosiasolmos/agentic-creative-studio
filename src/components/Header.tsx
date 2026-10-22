@@ -10,7 +10,8 @@ import {
   Play, 
   CheckCircle2, 
   Building2,
-  LayoutGrid
+  LayoutGrid,
+  BarChart3
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -96,6 +97,19 @@ export const Header: React.FC<HeaderProps> = ({
             <Building2 className="w-3.5 h-3.5" />
             <span>Brand Vault</span>
             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 ml-1">Context Hub</span>
+          </button>
+
+          <button
+            onClick={() => onChangeView('analytics')}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              currentView === 'analytics'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Performance Hub</span>
+            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 ml-1">Live ROAS</span>
           </button>
         </div>
       </div>

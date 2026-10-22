@@ -7,31 +7,40 @@ import { Header } from './components/Header';
 import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
 import { BrandVault } from './components/BrandVault';
+import { PerformanceHub } from './components/PerformanceHub';
 import { DriveModal } from './components/DriveModal';
 import { EmailModal } from './components/EmailModal';
 import { DetailModal } from './components/DetailModal';
+import { loadStoredAnalytics, saveAnalyticsToStorage, DEFAULT_ANALYTICS } from './data/defaultAnalytics';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ActiveView>(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#vault') return 'vault';
+    if (typeof window !== 'undefined') {
+      if (window.location.hash.startsWith('#vault')) return 'vault';
+      if (window.location.hash.startsWith('#analytics')) return 'analytics';
+    }
     return 'studio';
   });
 
   const handleViewChange = (v: ActiveView) => {
     setCurrentView(v);
     if (typeof window !== 'undefined') {
-      window.location.hash = v === 'vault' ? '#vault' : '';
+      window.location.hash = v === 'vault' ? '#vault' : v === 'analytics' ? '#analytics' : '';
     }
   };
   const [currentStep, setCurrentStep] = useState<StepNumber>(1);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [version, setVersion] = useState<'v1' | 'v2'>('v1');
   const [urlContext, setUrlContext] = useState<string>(INITIAL_URL);
+  const [activePrompt, setActivePrompt] = useState<string>(STEP_PRESETS[1].prompt);
   const [selectedCreative, setSelectedCreative] = useState<CreativeFormat | null>(null);
 
   // Brand Vault state
   const [brands, setBrands] = useState<FullBrandContext[]>(() => loadStoredBrands());
   const [activeBrandId, setActiveBrandId] = useState<string>('brand-lumiere');
+
+  // Analytics state (Fase 2)
+  const [analytics, setAnalytics] = useState(() => loadStoredAnalytics());
 
   const [isDriveModalOpen, setIsDriveModalOpen] = useState<boolean>(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
@@ -42,6 +51,11 @@ export const App: React.FC = () => {
   const activeVaultBrand = useMemo(() => {
     return brands.find(b => b.id === activeBrandId) || brands[0];
   }, [brands, activeBrandId]);
+
+  // Active analytics for current brand (Fase 2)
+  const activeAnalytics = useMemo(() => {
+    return analytics[activeBrandId] || DEFAULT_ANALYTICS['brand-lumiere'];
+  }, [analytics, activeBrandId]);
 
   // Compute dynamic brand profile: if urlContext matches an existing brand in vault, use its full context!
   const brandProfile = useMemo(() => {
@@ -234,6 +248,31 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleIterateFromPerformance = (promptText: string, brandId: string, stepOverride?: StepNumber) => {
+    if (brandId !== activeBrandId) {
+      setActiveBrandId(brandId);
+      const targetBrand = brands.find(b => b.id === brandId);
+      if (targetBrand) {
+        setUrlContext(`https://${targetBrand.domain}`);
+      }
+    }
+    setCurrentView('studio');
+    setActivePrompt(promptText);
+    if (typeof window !== 'undefined') {
+      window.location.hash = '';
+    }
+    const targetBrand = brands.find(b => b.id === brandId) || activeVaultBrand;
+    addLog(
+      'Vertex AI',
+      `Performance Hub Signal: Conectando telemetría de rendimiento para ${targetBrand.name}. Aplicando optimización...`,
+      'info'
+    );
+    handleExecutePrompt(
+      promptText, 
+      stepOverride || (promptText.toLowerCase().includes('fatiga') || promptText.toLowerCase().includes('-20%') ? 2 : 1)
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f1013] text-gray-100 overflow-hidden select-none">
       
@@ -266,6 +305,7 @@ export const App: React.FC = () => {
             logs={logs}
             urlContext={urlContext}
             setUrlContext={setUrlContext}
+            activePrompt={activePrompt}
           />
 
           {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
@@ -282,7 +322,7 @@ export const App: React.FC = () => {
             brandName={brandProfile.name}
           />
         </div>
-      ) : (
+      ) : currentView === 'vault' ? (
         /* Brand Knowledge Vault (Context Hub) */
         <BrandVault
           brands={brands}
@@ -297,6 +337,21 @@ export const App: React.FC = () => {
           onSaveBrand={handleSaveBrand}
           onRestoreDefaults={handleRestoreDefaults}
           onUseBrandInStudio={handleUseBrandInStudio}
+        />
+      ) : (
+        /* Performance Analytics & Creative Intelligence Hub (Fase 2) */
+        <PerformanceHub
+          brands={brands}
+          activeBrandId={activeBrandId}
+          onSelectBrand={(id) => {
+            setActiveBrandId(id);
+            const found = brands.find(b => b.id === id);
+            if (found) {
+              setUrlContext(`https://${found.domain}`);
+            }
+          }}
+          analyticsData={activeAnalytics}
+          onIterateCreative={handleIterateFromPerformance}
         />
       )}
 
