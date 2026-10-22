@@ -1,28 +1,61 @@
-import React, { useState, useMemo } from 'react';
-import { StepNumber, CreativeFormat, AgentLog } from './types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { StepNumber, CreativeFormat, AgentLog, ActiveView, FullBrandContext } from './types';
 import { INITIAL_URL, STEP_PRESETS } from './data/mockCreatives';
-import { parseBrandFromUrl, generateDynamicCreatives } from './utils/brandEngine';
+import { loadStoredBrands, saveBrandsToStorage, DEFAULT_BRANDS } from './data/defaultBrands';
+import { parseBrandFromUrl, generateDynamicCreatives, brandContextToProfile } from './utils/brandEngine';
 import { Header } from './components/Header';
 import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
+import { BrandVault } from './components/BrandVault';
 import { DriveModal } from './components/DriveModal';
 import { EmailModal } from './components/EmailModal';
 import { DetailModal } from './components/DetailModal';
 
 export const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<ActiveView>(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#vault') return 'vault';
+    return 'studio';
+  });
+
+  const handleViewChange = (v: ActiveView) => {
+    setCurrentView(v);
+    if (typeof window !== 'undefined') {
+      window.location.hash = v === 'vault' ? '#vault' : '';
+    }
+  };
   const [currentStep, setCurrentStep] = useState<StepNumber>(1);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [version, setVersion] = useState<'v1' | 'v2'>('v1');
   const [urlContext, setUrlContext] = useState<string>(INITIAL_URL);
   const [selectedCreative, setSelectedCreative] = useState<CreativeFormat | null>(null);
 
+  // Brand Vault state
+  const [brands, setBrands] = useState<FullBrandContext[]>(() => loadStoredBrands());
+  const [activeBrandId, setActiveBrandId] = useState<string>('brand-lumiere');
+
   const [isDriveModalOpen, setIsDriveModalOpen] = useState<boolean>(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
   const [driveReady, setDriveReady] = useState<boolean>(false);
   const [emailReady, setEmailReady] = useState<boolean>(false);
 
-  // Dynamic brand profile and creatives calculation based on ANY url
-  const brandProfile = useMemo(() => parseBrandFromUrl(urlContext), [urlContext]);
+  // Active brand from Vault
+  const activeVaultBrand = useMemo(() => {
+    return brands.find(b => b.id === activeBrandId) || brands[0];
+  }, [brands, activeBrandId]);
+
+  // Compute dynamic brand profile: if urlContext matches an existing brand in vault, use its full context!
+  const brandProfile = useMemo(() => {
+    const matchedBrand = brands.find(b => 
+      urlContext.toLowerCase().includes(b.domain.toLowerCase()) || 
+      urlContext.toLowerCase().includes(b.name.toLowerCase().replace(/\s+/g, ''))
+    );
+    if (matchedBrand) {
+      return brandContextToProfile(matchedBrand);
+    }
+    // Fallback to domain parser
+    return parseBrandFromUrl(urlContext);
+  }, [urlContext, brands]);
+
   const { creatives, video } = useMemo(() => generateDynamicCreatives(brandProfile), [brandProfile]);
 
   const [logs, setLogs] = useState<AgentLog[]>([
@@ -30,14 +63,14 @@ export const App: React.FC = () => {
       id: 'init-1',
       timestamp: '10:28:15',
       tool: 'Gemini 2.0 Flash',
-      message: 'Agente iniciado. Conexión establecida con Vertex AI, Imagen 3, Veo y Google Workspace.',
+      message: 'Agente iniciado. Conexión establecida con Vertex AI, Imagen 3, Veo y Brand Vault.',
       type: 'info'
     },
     {
       id: 'init-2',
       timestamp: '10:28:18',
-      tool: 'Gemini 2.0 Flash',
-      message: 'Motor semántico multicanal listo para procesar cualquier URL de marca o producto.',
+      tool: 'Brand Vault Engine',
+      message: `Cargado perfil activo: ${activeVaultBrand.name} (${activeVaultBrand.products.length} productos en catálogo).`,
       type: 'success'
     }
   ]);
@@ -78,14 +111,14 @@ export const App: React.FC = () => {
 
       setTimeout(() => {
         addLog(
-          'Gemini 2.0 Flash', 
-          `Marca detectada: "${brandProfile.name}" • Producto: "${brandProfile.productName}" • Industria: ${brandProfile.industry.toUpperCase()}`, 
+          'Brand Vault Engine', 
+          `Contexto inyectado: "${brandProfile.name}" • Producto Activo: "${brandProfile.productName}" • Industria: ${brandProfile.industry.toUpperCase()}`, 
           'info'
         );
       }, 700);
 
       setTimeout(() => {
-        addLog('Imagen 3', `Generando 12 adaptaciones de imagen multicanal para ${brandProfile.name} (Meta, TikTok, GDN, Pinterest, Carruseles)...`, 'tool');
+        addLog('Imagen 3', `Generando 12 adaptaciones de imagen multicanal para ${brandProfile.name} respetando guardrails de marca...`, 'tool');
       }, 1400);
 
       setTimeout(() => {
@@ -138,20 +171,15 @@ export const App: React.FC = () => {
         addLog('Gmail Dispatcher', `✓ Correo de confirmación despachado exitosamente a ${brandProfile.clientEmail}`, 'success');
         setEmailReady(true);
         setIsGenerating(false);
-        setIsDriveModalOpen(true); // Open drive directly for wow-factor
+        setIsDriveModalOpen(true);
       }, 2500);
     }
   };
 
   const handleRunAutoDemo = () => {
-    // Step 1
     handleExecutePrompt(STEP_PRESETS[1].prompt, 1);
-
-    // Step 2 after 5s
     setTimeout(() => {
       handleExecutePrompt(STEP_PRESETS[2].prompt, 2);
-
-      // Step 3 after another 5s
       setTimeout(() => {
         handleExecutePrompt(STEP_PRESETS[3].prompt, 3);
       }, 5500);
@@ -181,11 +209,39 @@ export const App: React.FC = () => {
     setVersion((v) => (v === 'v1' ? 'v2' : 'v1'));
   };
 
+  // Brand Vault handlers
+  const handleSaveBrand = (updatedBrand: FullBrandContext) => {
+    const newBrands = brands.map(b => b.id === updatedBrand.id ? updatedBrand : b);
+    setBrands(newBrands);
+    saveBrandsToStorage(newBrands);
+    addLog('Brand Vault Engine', `Configuración y guardrails actualizados para ${updatedBrand.name}.`, 'success');
+  };
+
+  const handleRestoreDefaults = () => {
+    setBrands(DEFAULT_BRANDS);
+    saveBrandsToStorage(DEFAULT_BRANDS);
+    addLog('Brand Vault Engine', 'Se han restaurado los valores predeterminados del Brand Vault.', 'info');
+  };
+
+  const handleUseBrandInStudio = (brand: FullBrandContext) => {
+    setActiveBrandId(brand.id);
+    setUrlContext(`https://${brand.domain}`);
+    setCurrentView('studio');
+    addLog('Brand Vault Engine', `Marca "${brand.name}" cargada en el estudio. URL sincronizada a https://${brand.domain}`, 'success');
+    handleExecutePrompt(
+      `Usa el contexto de la web https://${brand.domain} y crea 12 formatos diferentes de imagen para ads multicanal y 1 video cinemático de 10 segundos.`,
+      1
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f1013] text-gray-100 overflow-hidden select-none">
       
       {/* Top Application Header */}
       <Header
+        currentView={currentView}
+        onChangeView={handleViewChange}
+        activeBrandName={brandProfile.name}
         currentStep={currentStep}
         isGenerating={isGenerating}
         onSelectStep={(step) => handleExecutePrompt(STEP_PRESETS[step].prompt, step)}
@@ -199,32 +255,50 @@ export const App: React.FC = () => {
         onToggleVersion={handleToggleVersion}
       />
 
-      {/* Main Single-Screen Split Layout */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        {/* Left Side: Prompt Studio, Context & Reasoning Stream */}
-        <LeftPanel
-          currentStep={currentStep}
-          isGenerating={isGenerating}
-          onExecutePrompt={handleExecutePrompt}
-          logs={logs}
-          urlContext={urlContext}
-          setUrlContext={setUrlContext}
-        />
+      {/* Main Single-Screen Content View */}
+      {currentView === 'studio' ? (
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+          {/* Left Side: Prompt Studio, Context & Reasoning Stream */}
+          <LeftPanel
+            currentStep={currentStep}
+            isGenerating={isGenerating}
+            onExecutePrompt={handleExecutePrompt}
+            logs={logs}
+            urlContext={urlContext}
+            setUrlContext={setUrlContext}
+          />
 
-        {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
-        <RightPanel
-          creatives={creatives}
-          video={video}
-          version={version}
-          currentStep={currentStep}
-          onInspectCreative={(c) => setSelectedCreative(c)}
-          onOpenDrive={() => setIsDriveModalOpen(true)}
-          onOpenEmail={() => setIsEmailModalOpen(true)}
-          driveReady={driveReady}
-          emailReady={emailReady}
-          brandName={brandProfile.name}
+          {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
+          <RightPanel
+            creatives={creatives}
+            video={video}
+            version={version}
+            currentStep={currentStep}
+            onInspectCreative={(c) => setSelectedCreative(c)}
+            onOpenDrive={() => setIsDriveModalOpen(true)}
+            onOpenEmail={() => setIsEmailModalOpen(true)}
+            driveReady={driveReady}
+            emailReady={emailReady}
+            brandName={brandProfile.name}
+          />
+        </div>
+      ) : (
+        /* Brand Knowledge Vault (Context Hub) */
+        <BrandVault
+          brands={brands}
+          activeBrandId={activeBrandId}
+          onSelectBrand={(id) => {
+            setActiveBrandId(id);
+            const found = brands.find(b => b.id === id);
+            if (found) {
+              setUrlContext(`https://${found.domain}`);
+            }
+          }}
+          onSaveBrand={handleSaveBrand}
+          onRestoreDefaults={handleRestoreDefaults}
+          onUseBrandInStudio={handleUseBrandInStudio}
         />
-      </div>
+      )}
 
       {/* Modals with dynamic Brand info */}
       <DriveModal

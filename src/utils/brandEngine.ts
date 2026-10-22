@@ -1,4 +1,4 @@
-import { CreativeFormat, VideoSpec } from '../types';
+import { CreativeFormat, VideoSpec, FullBrandContext } from '../types';
 
 export interface BrandProfile {
   name: string;
@@ -12,6 +12,25 @@ export interface BrandProfile {
   accentV2: string;
   gradientV1: string;
   gradientV2: string;
+  fullContext?: FullBrandContext;
+}
+
+export function brandContextToProfile(fullBrand: FullBrandContext): BrandProfile {
+  const activeProd = fullBrand.products.find(p => p.activeForAds) || fullBrand.products[0];
+  return {
+    name: fullBrand.name,
+    domain: fullBrand.domain,
+    productName: activeProd ? activeProd.name : "Producto Signature",
+    industry: fullBrand.industry,
+    clientEmail: fullBrand.clientEmail,
+    clientContact: fullBrand.clientContact,
+    primaryEmoji: fullBrand.industry === 'skincare' ? '🧴' : fullBrand.industry === 'apparel' ? '👟' : '⚡',
+    accentV1: fullBrand.visuals.accentColor,
+    accentV2: "#f59e0b",
+    gradientV1: fullBrand.visuals.gradientV1,
+    gradientV2: fullBrand.visuals.gradientV2,
+    fullContext: fullBrand
+  };
 }
 
 // Curated high-resolution Unsplash commercial photography for real ads
