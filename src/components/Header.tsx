@@ -12,7 +12,8 @@ import {
   Building2,
   LayoutGrid,
   BarChart3,
-  Rocket
+  Rocket,
+  UserCheck
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -114,6 +115,19 @@ export const Header: React.FC<HeaderProps> = ({
             <span>Performance Hub</span>
             <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 ml-1">Live ROAS</span>
           </button>
+
+          <button
+            onClick={() => onChangeView('dispatch')}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              currentView === 'dispatch'
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-600/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Aprobación & Despacho</span>
+            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 ml-1">Fase 4</span>
+          </button>
         </div>
       </div>
 
@@ -172,10 +186,20 @@ export const Header: React.FC<HeaderProps> = ({
             <span>3. Clasificar, Drive & Email</span>
           </button>
         </div>
-      ) : (
+      ) : currentView === 'vault' ? (
         <div className="hidden lg:flex items-center space-x-2 text-xs text-purple-300 bg-purple-500/10 border border-purple-500/20 px-3.5 py-1.5 rounded-xl">
           <Building2 className="w-3.5 h-3.5" />
           <span>Editando Contexto & Guardrails para <strong>{activeBrandName}</strong></span>
+        </div>
+      ) : currentView === 'analytics' ? (
+        <div className="hidden lg:flex items-center space-x-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl">
+          <BarChart3 className="w-3.5 h-3.5" />
+          <span>Telemetría de Rendimiento & ROAS para <strong>{activeBrandName}</strong></span>
+        </div>
+      ) : (
+        <div className="hidden lg:flex items-center space-x-2 text-xs text-purple-300 bg-purple-500/10 border border-purple-500/20 px-3.5 py-1.5 rounded-xl">
+          <UserCheck className="w-3.5 h-3.5" />
+          <span>Portal de Aprobación & Despacho API para <strong>{activeBrandName}</strong></span>
         </div>
       )}
 

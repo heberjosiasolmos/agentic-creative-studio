@@ -8,18 +8,21 @@ import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
 import { BrandVault } from './components/BrandVault';
 import { PerformanceHub } from './components/PerformanceHub';
+import { ApprovalHub } from './components/ApprovalHub';
 import { CampaignLauncherModal } from './components/CampaignLauncherModal';
 import { DriveModal } from './components/DriveModal';
 import { EmailModal } from './components/EmailModal';
 import { DetailModal } from './components/DetailModal';
-import { BrandProduct } from './types';
+import { BrandProduct, DeploymentRecord } from './types';
 import { loadStoredAnalytics, saveAnalyticsToStorage, DEFAULT_ANALYTICS } from './data/defaultAnalytics';
+import { loadStoredDeployments, saveDeploymentsToStorage, DEFAULT_DEPLOYMENTS } from './data/defaultDeployments';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ActiveView>(() => {
     if (typeof window !== 'undefined') {
       if (window.location.hash.startsWith('#vault')) return 'vault';
       if (window.location.hash.startsWith('#analytics')) return 'analytics';
+      if (window.location.hash.startsWith('#approval') || window.location.hash.startsWith('#dispatch')) return 'dispatch';
     }
     return 'studio';
   });
@@ -27,7 +30,7 @@ export const App: React.FC = () => {
   const handleViewChange = (v: ActiveView) => {
     setCurrentView(v);
     if (typeof window !== 'undefined') {
-      window.location.hash = v === 'vault' ? '#vault' : v === 'analytics' ? '#analytics' : '';
+      window.location.hash = v === 'vault' ? '#vault' : v === 'analytics' ? '#analytics' : v === 'dispatch' ? '#dispatch' : '';
     }
   };
   const [currentStep, setCurrentStep] = useState<StepNumber>(1);
@@ -48,6 +51,9 @@ export const App: React.FC = () => {
 
   // Analytics state (Fase 2)
   const [analytics, setAnalytics] = useState(() => loadStoredAnalytics());
+
+  // Deployments state (Fase 4)
+  const [deployments, setDeployments] = useState<DeploymentRecord[]>(() => loadStoredDeployments());
 
   const [isDriveModalOpen, setIsDriveModalOpen] = useState<boolean>(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
@@ -324,7 +330,50 @@ export const App: React.FC = () => {
       setEmailReady(true);
       setIsGenerating(false);
       setIsDriveModalOpen(true);
+
+      const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const newRecord: DeploymentRecord = {
+        id: `dep-${Date.now()}`,
+        campaignName,
+        brandId: activeBrandId,
+        brandName: brandProfile.name,
+        productName: selectedProduct.name,
+        productSku: selectedProduct.sku,
+        primaryHook: hook,
+        channels: ['Meta Ads', 'Google Ads', 'TikTok Spark', 'Amazon Ads'],
+        budget,
+        projectedRoas: '4.9x — 5.6x',
+        driveFolderUrl: `https://drive.google.com/drive/folders/${campaignName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+        status: 'deployed',
+        approvalStatus: 'approved',
+        deployedAt: nowStr,
+        deployedBy: `${brandProfile.clientContact}`
+      };
+      setDeployments(prev => {
+        const updated = [newRecord, ...prev];
+        saveDeploymentsToStorage(updated);
+        return updated;
+      });
     }, 3000);
+  };
+
+  const handleApplyClientFeedback = (feedbackPrompt: string, brandId: string) => {
+    if (brandId !== activeBrandId) {
+      setActiveBrandId(brandId);
+      const found = brands.find(b => b.id === brandId);
+      if (found) setUrlContext(`https://${found.domain}`);
+    }
+    setCurrentView('studio');
+    setActivePrompt(feedbackPrompt);
+    if (typeof window !== 'undefined') {
+      window.location.hash = '';
+    }
+    addLog(
+      'Gemini 2.0 Flash', 
+      `Feedback recibido de cliente desde Portal de Aprobación: "${feedbackPrompt}". Re-calibrando entrega con Nano Banana...`, 
+      'refine'
+    );
+    handleExecutePrompt(feedbackPrompt, 2);
   };
 
   return (
@@ -397,7 +446,7 @@ export const App: React.FC = () => {
           onRestoreDefaults={handleRestoreDefaults}
           onUseBrandInStudio={handleUseBrandInStudio}
         />
-      ) : (
+      ) : currentView === 'analytics' ? (
         /* Performance Analytics & Creative Intelligence Hub (Fase 2) */
         <PerformanceHub
           brands={brands}
@@ -411,6 +460,25 @@ export const App: React.FC = () => {
           }}
           analyticsData={activeAnalytics}
           onIterateCreative={handleIterateFromPerformance}
+        />
+      ) : (
+        /* Client Approval Pipeline & Ads Dispatcher Hub (Fase 4) */
+        <ApprovalHub
+          brands={brands}
+          activeBrandId={activeBrandId}
+          onSelectBrand={(id) => {
+            setActiveBrandId(id);
+            const found = brands.find(b => b.id === id);
+            if (found) {
+              setUrlContext(`https://${found.domain}`);
+            }
+          }}
+          creatives={creatives}
+          video={video}
+          deployments={deployments}
+          onApplyClientFeedback={handleApplyClientFeedback}
+          onOpenDrive={() => setIsDriveModalOpen(true)}
+          onOpenEmail={() => setIsEmailModalOpen(true)}
         />
       )}
 

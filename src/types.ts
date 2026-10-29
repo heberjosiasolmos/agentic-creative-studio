@@ -1,5 +1,5 @@
 export type StepNumber = 1 | 2 | 3;
-export type ActiveView = 'studio' | 'vault' | 'analytics';
+export type ActiveView = 'studio' | 'vault' | 'analytics' | 'dispatch';
 
 export interface CreativeFormat {
   id: string;
@@ -244,4 +244,51 @@ export interface CampaignStrategyConfig {
   guardrailsStatus: 'passed' | 'warning';
   activeFormatCount: number;
   status: 'draft' | 'synthesized' | 'deployed';
+}
+
+// ----------------------------------------------------
+// FASE 4: CLIENT APPROVAL PIPELINE & ADS DISPATCHER
+// ----------------------------------------------------
+
+export type ApprovalStatus = 'approved' | 'pending' | 'needs_revision';
+
+export interface AssetApprovalItem {
+  id: string;
+  name: string;
+  channel: string;
+  aspectRatio: string;
+  thumbnailUrl: string;
+  status: ApprovalStatus;
+  clientFeedback?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+}
+
+export interface DeploymentRecord {
+  id: string;
+  campaignName: string;
+  brandId: string;
+  brandName: string;
+  productName: string;
+  productSku: string;
+  primaryHook: string;
+  channels: string[];
+  budget: number;
+  projectedRoas: string;
+  driveFolderUrl: string;
+  status: 'deployed' | 'active' | 'scheduled';
+  approvalStatus: 'approved' | 'approved_with_notes';
+  deployedAt: string;
+  deployedBy: string;
+}
+
+export interface AdsPlatformExport {
+  id: string;
+  platform: 'Google Ads' | 'Meta Ads' | 'TikTok Ads' | 'Amazon Ads';
+  campaignType: string;
+  format: 'JSON' | 'CSV';
+  downloadFilename: string;
+  summary: string;
+  payloadSnippet: string;
+  directApiReady: boolean;
 }
