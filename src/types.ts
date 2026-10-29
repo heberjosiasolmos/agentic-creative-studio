@@ -28,6 +28,19 @@ export interface CreativeFormat {
   model: 'Imagen 3' | 'Nano Banana';
   fileSize: string;
   drivePath: string;
+  predictiveScoreV1?: number; // 0-100
+  predictiveScoreV2?: number; // 0-100
+  predictedRoasV1?: number; // e.g. 4.2
+  predictedRoasV2?: number; // e.g. 5.3
+  predictedCtrV1?: number; // e.g. 2.9
+  predictedCtrV2?: number; // e.g. 4.1
+  auditBreakdown?: {
+    brandDnaScore: number; // 0-100
+    hookStrength: number; // 0-100
+    persuasionScore: number; // 0-100
+    guardrailCompliance: boolean;
+    predictedLiftPercent?: number; // e.g. 28%
+  };
 }
 
 export interface VideoSpec {
@@ -48,6 +61,19 @@ export interface VideoSpec {
   ctaV2: string;
   audioTrack: string;
   drivePath: string;
+  predictiveScoreV1?: number;
+  predictiveScoreV2?: number;
+  predictedRoasV1?: number;
+  predictedRoasV2?: number;
+  predictedCtrV1?: number;
+  predictedCtrV2?: number;
+  auditBreakdown?: {
+    brandDnaScore: number;
+    hookStrength: number;
+    persuasionScore: number;
+    guardrailCompliance: boolean;
+    predictedLiftPercent?: number;
+  };
 }
 
 export interface AgentLog {
@@ -198,4 +224,24 @@ export interface BrandAnalyticsData {
   creatives: CreativePerformanceItem[];
   searchTerms: SearchTermInsight[];
   aiStrategicInsights: StrategicInsight[];
+}
+
+// ----------------------------------------------------
+// FASE 3: MOTOR DE GENERACIÓN ASISTIDA POR DATOS & CAMPAIGN STRATEGY
+// ----------------------------------------------------
+
+export interface CampaignStrategyConfig {
+  id: string;
+  name: string;
+  brandId: string;
+  targetProductId: string;
+  primaryHook: string;
+  targetChannels: string[];
+  monthlyBudget: number;
+  projectedRoasRange: string;
+  projectedRevenueRange: string;
+  projectedCpa: number;
+  guardrailsStatus: 'passed' | 'warning';
+  activeFormatCount: number;
+  status: 'draft' | 'synthesized' | 'deployed';
 }

@@ -24,6 +24,9 @@ export const CreativeCard: React.FC<CreativeCardProps> = ({
   const accent = version === 'v2' ? creative.accentColorV2 : creative.accentColorV1;
   const modelUsed = version === 'v2' ? 'Nano Banana' : creative.model;
 
+  const score = version === 'v2' ? (creative.predictiveScoreV2 || 96) : (creative.predictiveScoreV1 || 89);
+  const roas = version === 'v2' ? (creative.predictedRoasV2 || 5.2) : (creative.predictedRoasV1 || 4.2);
+
   // Aspect ratio height adjustments for layout
   const isWideBanner = creative.aspectRatio === '8:1';
   const isVertical = creative.aspectRatio === '9:16' || creative.aspectRatio === '1:2' || creative.aspectRatio === '2:3';
@@ -35,13 +38,22 @@ export const CreativeCard: React.FC<CreativeCardProps> = ({
     >
       {/* Top Bar info */}
       <div className="flex items-center justify-between text-xs mb-2">
-        <div className="flex items-center space-x-1.5 truncate max-w-[170px]">
+        <div className="flex items-center space-x-1.5 truncate max-w-[140px]">
           <span className="font-semibold text-gray-200 truncate">
             {creative.name}
           </span>
         </div>
         <div className="flex items-center space-x-1 shrink-0">
-          <span className="font-mono text-[10px] text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">
+          <span className="font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 flex items-center space-x-1">
+            <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+            <span>ROAS {roas}x ({score}%)</span>
+          </span>
+          {version === 'v2' && (
+            <span className="font-mono text-[9px] font-bold px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              +{creative.auditBreakdown?.predictedLiftPercent || 26}%
+            </span>
+          )}
+          <span className="font-mono text-[9px] text-gray-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
             {creative.aspectRatio}
           </span>
         </div>

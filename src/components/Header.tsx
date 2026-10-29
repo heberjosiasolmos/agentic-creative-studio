@@ -11,7 +11,8 @@ import {
   CheckCircle2, 
   Building2,
   LayoutGrid,
-  BarChart3
+  BarChart3,
+  Rocket
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -29,6 +30,7 @@ interface HeaderProps {
   emailReady: boolean;
   version: 'v1' | 'v2';
   onToggleVersion: () => void;
+  onOpenCampaignLauncher?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -45,7 +47,8 @@ export const Header: React.FC<HeaderProps> = ({
   driveReady,
   emailReady,
   version,
-  onToggleVersion
+  onToggleVersion,
+  onOpenCampaignLauncher
 }) => {
   return (
     <header className="h-16 border-b border-[#282a2c] bg-[#131314]/95 backdrop-blur-md px-5 flex items-center justify-between shrink-0 select-none z-30">
@@ -221,6 +224,17 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Auto Demo</span>
+          </button>
+        )}
+
+        {/* Autonomous Campaign Launcher Button (Fase 3) */}
+        {onOpenCampaignLauncher && (
+          <button
+            onClick={onOpenCampaignLauncher}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-semibold shadow-md shadow-purple-500/20 transition"
+          >
+            <Rocket className="w-3.5 h-3.5 text-white" />
+            <span className="hidden sm:inline">Lanzar Campaña</span>
           </button>
         )}
 

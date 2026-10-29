@@ -8,9 +8,11 @@ import { LeftPanel } from './components/LeftPanel';
 import { RightPanel } from './components/RightPanel';
 import { BrandVault } from './components/BrandVault';
 import { PerformanceHub } from './components/PerformanceHub';
+import { CampaignLauncherModal } from './components/CampaignLauncherModal';
 import { DriveModal } from './components/DriveModal';
 import { EmailModal } from './components/EmailModal';
 import { DetailModal } from './components/DetailModal';
+import { BrandProduct } from './types';
 import { loadStoredAnalytics, saveAnalyticsToStorage, DEFAULT_ANALYTICS } from './data/defaultAnalytics';
 
 export const App: React.FC = () => {
@@ -33,7 +35,12 @@ export const App: React.FC = () => {
   const [version, setVersion] = useState<'v1' | 'v2'>('v1');
   const [urlContext, setUrlContext] = useState<string>(INITIAL_URL);
   const [activePrompt, setActivePrompt] = useState<string>(STEP_PRESETS[1].prompt);
-  const [selectedCreative, setSelectedCreative] = useState<CreativeFormat | null>(null);
+  const [selectedCreative, setSelectedCreative] = useState<CreativeFormat | null>(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('detail')) {
+      return generateDynamicCreatives(brandContextToProfile(DEFAULT_BRANDS[0])).creatives[0];
+    }
+    return null;
+  });
 
   // Brand Vault state
   const [brands, setBrands] = useState<FullBrandContext[]>(() => loadStoredBrands());
@@ -44,6 +51,11 @@ export const App: React.FC = () => {
 
   const [isDriveModalOpen, setIsDriveModalOpen] = useState<boolean>(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('campaign')) return true;
+    return false;
+  });
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [driveReady, setDriveReady] = useState<boolean>(false);
   const [emailReady, setEmailReady] = useState<boolean>(false);
 
@@ -64,11 +76,11 @@ export const App: React.FC = () => {
       urlContext.toLowerCase().includes(b.name.toLowerCase().replace(/\s+/g, ''))
     );
     if (matchedBrand) {
-      return brandContextToProfile(matchedBrand);
+      return brandContextToProfile(matchedBrand, selectedProductId);
     }
     // Fallback to domain parser
     return parseBrandFromUrl(urlContext);
-  }, [urlContext, brands]);
+  }, [urlContext, brands, selectedProductId]);
 
   const { creatives, video } = useMemo(() => generateDynamicCreatives(brandProfile), [brandProfile]);
 
@@ -273,6 +285,48 @@ export const App: React.FC = () => {
     );
   };
 
+  const handleDeployCampaign = (
+    campaignName: string, 
+    selectedProduct: BrandProduct, 
+    hook: string, 
+    budget: number
+  ) => {
+    setIsGenerating(true);
+    setCurrentStep(3);
+    setDriveReady(false);
+    setEmailReady(false);
+
+    addLog('Vertex AI', `Iniciando orquestación de campaña: "${campaignName}" ($${budget.toLocaleString()} USD / mes)...`, 'info');
+
+    setTimeout(() => {
+      addLog(
+        'Brand Vault Engine', 
+        `Producto enfocado: ${selectedProduct.name} (SKU: ${selectedProduct.sku}, Margen: ${selectedProduct.marginPercent}%). Hook validado: "${hook}"`, 
+        'info'
+      );
+    }, 600);
+
+    setTimeout(() => {
+      addLog('Imagen 3', `Renderizando 12 formatos optimizados con predictive scoring para Meta, Google y Amazon Ads...`, 'tool');
+    }, 1200);
+
+    setTimeout(() => {
+      addLog('Google Veo', `Sincronizando video vertical cinemático de 10s adaptado al hook de campaña...`, 'tool');
+    }, 1800);
+
+    setTimeout(() => {
+      addLog('Google Drive API', `Sincronizando 12 archivos PNG Lossless + Master MP4 a /Google Drive/Campañas/${campaignName}/...`, 'tool');
+      setDriveReady(true);
+    }, 2400);
+
+    setTimeout(() => {
+      addLog('Gmail Dispatcher', `Notificación de campaña y enlaces seguros despachados exitosamente a ${brandProfile.clientEmail}`, 'success');
+      setEmailReady(true);
+      setIsGenerating(false);
+      setIsDriveModalOpen(true);
+    }, 3000);
+  };
+
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f1013] text-gray-100 overflow-hidden select-none">
       
@@ -292,6 +346,7 @@ export const App: React.FC = () => {
         emailReady={emailReady}
         version={version}
         onToggleVersion={handleToggleVersion}
+        onOpenCampaignLauncher={() => setIsCampaignModalOpen(true)}
       />
 
       {/* Main Single-Screen Content View */}
@@ -306,6 +361,10 @@ export const App: React.FC = () => {
             urlContext={urlContext}
             setUrlContext={setUrlContext}
             activePrompt={activePrompt}
+            brandContext={activeVaultBrand}
+            selectedProductId={selectedProductId}
+            onSelectProduct={setSelectedProductId}
+            onOpenCampaignLauncher={() => setIsCampaignModalOpen(true)}
           />
 
           {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
@@ -375,10 +434,22 @@ export const App: React.FC = () => {
       />
 
       <DetailModal
-        creative={selectedCreative}
+        creative={selectedCreative || (typeof window !== 'undefined' && window.location.hash.includes('detail') ? creatives[0] : null)}
         version={version}
-        onClose={() => setSelectedCreative(null)}
+        onClose={() => {
+          setSelectedCreative(null);
+          if (typeof window !== 'undefined' && window.location.hash.includes('detail')) {
+            window.location.hash = '';
+          }
+        }}
         brandName={brandProfile.name}
+      />
+
+      <CampaignLauncherModal
+        isOpen={isCampaignModalOpen}
+        onClose={() => setIsCampaignModalOpen(false)}
+        brand={activeVaultBrand}
+        onDeploy={handleDeployCampaign}
       />
 
     </div>

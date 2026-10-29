@@ -15,8 +15,14 @@ export interface BrandProfile {
   fullContext?: FullBrandContext;
 }
 
-export function brandContextToProfile(fullBrand: FullBrandContext): BrandProfile {
-  const activeProd = fullBrand.products.find(p => p.activeForAds) || fullBrand.products[0];
+export function brandContextToProfile(fullBrand: FullBrandContext, selectedProductId?: string): BrandProfile {
+  let activeProd = fullBrand.products[0];
+  if (selectedProductId) {
+    const found = fullBrand.products.find(p => p.id === selectedProductId || p.sku === selectedProductId);
+    if (found) activeProd = found;
+  } else {
+    activeProd = fullBrand.products.find(p => p.activeForAds) || fullBrand.products[0];
+  }
   return {
     name: fullBrand.name,
     domain: fullBrand.domain,
@@ -581,5 +587,47 @@ export function generateDynamicCreatives(brand: BrandProfile): { creatives: Crea
     drivePath: `04_Video_Veo_Master/${b.replace(/\s+/g, '_')}_Veo_10s_Master_4K.mp4`
   };
 
-  return { creatives, video };
+  const scoredCreatives: CreativeFormat[] = creatives.map((c, idx) => {
+    const baseScore = 88 + (idx % 5);
+    const scoreV2 = Math.min(99, baseScore + 7);
+    const roasV1 = Number((4.1 + (idx % 4) * 0.15).toFixed(2));
+    const roasV2 = Number((roasV1 + 1.05).toFixed(2));
+    const ctrV1 = Number((2.8 + (idx % 3) * 0.25).toFixed(2));
+    const ctrV2 = Number((ctrV1 + 1.25).toFixed(2));
+    return {
+      ...c,
+      predictiveScoreV1: baseScore,
+      predictiveScoreV2: scoreV2,
+      predictedRoasV1: roasV1,
+      predictedRoasV2: roasV2,
+      predictedCtrV1: ctrV1,
+      predictedCtrV2: ctrV2,
+      auditBreakdown: {
+        brandDnaScore: 98,
+        hookStrength: 92 + (idx % 6),
+        persuasionScore: 91 + (idx % 7),
+        guardrailCompliance: true,
+        predictedLiftPercent: Math.round(((roasV2 - roasV1) / roasV1) * 100)
+      }
+    };
+  });
+
+  const scoredVideo: VideoSpec = {
+    ...video,
+    predictiveScoreV1: 91,
+    predictiveScoreV2: 97,
+    predictedRoasV1: 4.65,
+    predictedRoasV2: 5.80,
+    predictedCtrV1: 3.82,
+    predictedCtrV2: 4.95,
+    auditBreakdown: {
+      brandDnaScore: 99,
+      hookStrength: 96,
+      persuasionScore: 98,
+      guardrailCompliance: true,
+      predictedLiftPercent: 25
+    }
+  };
+
+  return { creatives: scoredCreatives, video: scoredVideo };
 }

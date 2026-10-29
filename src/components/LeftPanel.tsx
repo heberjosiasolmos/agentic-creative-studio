@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StepNumber, AgentLog } from '../types';
+import { StepNumber, AgentLog, FullBrandContext } from '../types';
 import { STEP_PRESETS, INITIAL_URL } from '../data/mockCreatives';
 import { 
   Sparkles, 
@@ -15,7 +15,11 @@ import {
   Mail, 
   Sliders,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Package,
+  Rocket,
+  TrendingUp,
+  Target
 } from 'lucide-react';
 
 interface LeftPanelProps {
@@ -26,6 +30,10 @@ interface LeftPanelProps {
   urlContext: string;
   setUrlContext: (url: string) => void;
   activePrompt?: string;
+  brandContext?: FullBrandContext;
+  selectedProductId?: string;
+  onSelectProduct?: (productId: string) => void;
+  onOpenCampaignLauncher?: () => void;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({
@@ -35,7 +43,11 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
   logs,
   urlContext,
   setUrlContext,
-  activePrompt
+  activePrompt,
+  brandContext,
+  selectedProductId,
+  onSelectProduct,
+  onOpenCampaignLauncher
 }) => {
   const [promptInput, setPromptInput] = useState<string>(activePrompt || STEP_PRESETS[currentStep].prompt);
   const [showLogs, setShowLogs] = useState<boolean>(true);
@@ -109,6 +121,112 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Product Catalog Link (Fase 3: Data-Driven Context) */}
+        {brandContext && brandContext.products && brandContext.products.length > 0 && (
+          <div className="space-y-1.5 p-3 rounded-xl bg-[#1c1d20] border border-white/10">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-gray-200 flex items-center space-x-1.5">
+                <Package className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Producto Prioritario (Brand Vault):</span>
+              </span>
+              <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                Margen: {brandContext.products.find(p => p.id === selectedProductId)?.marginPercent || brandContext.products[0]?.marginPercent}%
+              </span>
+            </div>
+
+            <select
+              value={selectedProductId || brandContext.products[0]?.id}
+              onChange={(e) => {
+                if (onSelectProduct) onSelectProduct(e.target.value);
+                const p = brandContext.products.find(prod => prod.id === e.target.value);
+                if (p) {
+                  setPromptInput(`Usa el contexto de ${p.name} ($${p.price} USD) y genera 12 formatos y 1 video cinemático de 10s destacando: ${p.uvp}`);
+                }
+              }}
+              className="w-full px-2.5 py-1.5 rounded-lg bg-[#27282d] border border-white/10 text-xs text-white focus:outline-none focus:border-emerald-500 cursor-pointer font-medium"
+            >
+              {brandContext.products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} — ${p.price} USD (Margen: {p.marginPercent}%)
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Winning Hooks Mined from Performance Hub (Fase 3) */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-gray-300">
+            <span className="flex items-center space-x-1 text-purple-300">
+              <Sparkles className="w-3 h-3 text-purple-400" />
+              <span>Hooks Ganadores (Mined from Campaigns):</span>
+            </span>
+            <span className="text-[9px] font-mono text-gray-500">Live Signals</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                const prod = brandContext?.products.find(p => p.id === selectedProductId) || brandContext?.products[0];
+                const pName = prod ? prod.name : 'producto';
+                setPromptInput(`Generar campaña para ${pName} centrada en el hook ganador 'Evidencia Clínica 72h' (+120% hidratación) con aval dermatológico en los 12 formatos.`);
+              }}
+              className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-left text-[10px] text-emerald-300 transition truncate"
+            >
+              🧪 Evidencia Clínica <strong>(5.4x)</strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const prod = brandContext?.products.find(p => p.id === selectedProductId) || brandContext?.products[0];
+                const pName = prod ? prod.name : 'producto';
+                setPromptInput(`Generar variación anti-fatiga para ${pName} con paleta cálida golden hour y badge de urgencia '-20% OFF' para reactivar CTR.`);
+              }}
+              className="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-left text-[10px] text-amber-300 transition truncate"
+            >
+              ⚡ Descuento -20% <strong>(5.1x)</strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const prod = brandContext?.products.find(p => p.id === selectedProductId) || brandContext?.products[0];
+                const pName = prod ? prod.name : 'producto';
+                setPromptInput(`Crear creativos enfocados en la intención de búsqueda 'serum ácido hialurónico botánico vegano' para ${pName} en Google y Meta.`);
+              }}
+              className="p-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-left text-[10px] text-cyan-300 transition truncate"
+            >
+              🔍 Search Query <strong>(6.4x)</strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const prod = brandContext?.products.find(p => p.id === selectedProductId) || brandContext?.products[0];
+                const pName = prod ? prod.name : 'producto';
+                setPromptInput(`Generar anuncios de retargeting para ${pName} destacando fórmula pura nórdica 0% químicos y envío express.`);
+              }}
+              className="p-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-left text-[10px] text-purple-300 transition truncate"
+            >
+              ❄️ Origen Nórdico <strong>(4.8x)</strong>
+            </button>
+          </div>
+        </div>
+
+        {/* Autonomous Campaign Dispatcher Button (Fase 3) */}
+        {onOpenCampaignLauncher && (
+          <button
+            type="button"
+            onClick={onOpenCampaignLauncher}
+            className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold flex items-center justify-center space-x-2 shadow-lg shadow-blue-600/30 transition group"
+          >
+            <Rocket className="w-4 h-4 text-white group-hover:scale-110 transition" />
+            <span>🚀 Lanzar Campaña Agéntica Multi-Canal</span>
+          </button>
+        )}
 
         {/* Campaign Objective & Scope */}
         <div className="grid grid-cols-2 gap-2">
