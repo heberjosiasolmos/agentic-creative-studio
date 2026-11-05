@@ -20,8 +20,13 @@ import {
   AlertTriangle,
   Building2,
   Sliders,
-  Globe
+  Globe,
+  Users,
+  Search,
+  Filter,
+  ArrowRight
 } from 'lucide-react';
+import { CreateClientModal } from './CreateClientModal';
 
 interface BrandVaultProps {
   brands: FullBrandContext[];
@@ -30,6 +35,9 @@ interface BrandVaultProps {
   onSaveBrand: (updatedBrand: FullBrandContext) => void;
   onRestoreDefaults: () => void;
   onUseBrandInStudio: (brand: FullBrandContext) => void;
+  onCreateBrand?: (newBrand: FullBrandContext) => void;
+  onDeleteBrand?: (brandId: string) => void;
+  initialTab?: 'directory' | 'visuals' | 'persona' | 'products' | 'directives';
 }
 
 export const BrandVault: React.FC<BrandVaultProps> = ({
@@ -38,19 +46,26 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
   onSelectBrand,
   onSaveBrand,
   onRestoreDefaults,
-  onUseBrandInStudio
+  onUseBrandInStudio,
+  onCreateBrand,
+  onDeleteBrand,
+  initialTab
 }) => {
   const currentBrand = brands.find(b => b.id === activeBrandId) || brands[0];
-  const [activeTab, setActiveTab] = useState<'visuals' | 'persona' | 'products' | 'directives'>(() => {
+  const [activeTab, setActiveTab] = useState<'directory' | 'visuals' | 'persona' | 'products' | 'directives'>(() => {
+    if (initialTab) return initialTab;
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
-      if (tab === 'persona' || tab === 'products' || tab === 'directives') return tab;
+      if (tab === 'directory' || tab === 'visuals' || tab === 'persona' || tab === 'products' || tab === 'directives') return tab as any;
     }
-    return 'visuals';
+    return 'directory';
   });
   const [brandData, setBrandData] = useState<FullBrandContext>(currentBrand);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
   
   // New item inputs
   const [newDo, setNewDo] = useState('');
@@ -250,19 +265,22 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
 
           <div className="h-6 w-[1px] bg-white/10 hidden md:block" />
 
-          {/* Selector de Marcas */}
+          {/* Quick Brand Switcher Buttons */}
           <div className="flex items-center space-x-1 bg-black/40 p-1 rounded-xl border border-white/10">
-            {brands.map(b => (
+            {brands.slice(0, 5).map(b => (
               <button
                 key={b.id}
-                onClick={() => onSelectBrand(b.id)}
+                onClick={() => {
+                  onSelectBrand(b.id);
+                  setBrandData(b);
+                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                   b.id === brandData.id
                     ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {b.name}
+                {b.name.split(' ')[0]}
               </button>
             ))}
           </div>
@@ -271,11 +289,19 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
           <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 text-xs font-semibold transition"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Nuevo Cliente</span>
+          </button>
+
+          <button
             onClick={() => onUseBrandInStudio(brandData)}
             className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition"
           >
             <Sparkles className="w-4 h-4 fill-current" />
-            <span>Usar en Creative Studio</span>
+            <span>Usar en Studio</span>
           </button>
 
           <button
@@ -299,10 +325,22 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
 
       {/* Tabs Navigation */}
       <div className="border-b border-[#242629] bg-[#111215] px-6">
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-6 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('directory')}
+            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 whitespace-nowrap transition ${
+              activeTab === 'directory'
+                ? 'border-purple-500 text-purple-300'
+                : 'border-transparent text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>🏢 Directorio de Clientes ({brands.length})</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('visuals')}
-            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 transition ${
+            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'visuals'
                 ? 'border-purple-500 text-purple-300'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
@@ -314,38 +352,38 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
 
           <button
             onClick={() => setActiveTab('persona')}
-            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 transition ${
+            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'persona'
                 ? 'border-purple-500 text-purple-300'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>2. Voz, Tono & Guardrails (Do's & Don'ts)</span>
+            <span>2. Voz, Tono & Guardrails</span>
           </button>
 
           <button
             onClick={() => setActiveTab('products')}
-            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 transition ${
+            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'products'
                 ? 'border-purple-500 text-purple-300'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>3. Catálogo de Productos & ASINs ({brandData.products.length})</span>
+            <span>3. Catálogo de Productos ({brandData.products.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('directives')}
-            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 transition ${
+            className={`py-3.5 border-b-2 text-xs font-semibold flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'directives'
                 ? 'border-purple-500 text-purple-300'
                 : 'border-transparent text-gray-400 hover:text-gray-200'
             }`}
           >
             <Cpu className="w-4 h-4" />
-            <span>4. Memoria Agéntica & Directivas</span>
+            <span>4. Memoria Agéntica</span>
           </button>
         </div>
       </div>
@@ -353,6 +391,306 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
       {/* Main Tab Content */}
       <div className="p-8 max-w-7xl mx-auto w-full flex-1">
         
+        {/* ========================================================================= */}
+        {/* TAB 0: DIRECTORIO DE CLIENTES (PORTFOLIO MANAGEMENT) */}
+        {/* ========================================================================= */}
+        {activeTab === 'directory' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            
+            {/* Top Toolbar: Search, Filters & Create Button */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#141518] p-4 rounded-2xl border border-[#26282c]">
+              
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por cliente, dominio, producto o SKU..."
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#1c1d21] border border-[#31343a] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-2.5 top-2.5 text-gray-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Industry Filter Badges */}
+              <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 md:pb-0">
+                <span className="text-[11px] text-gray-400 flex items-center space-x-1 mr-1">
+                  <Filter className="w-3 h-3" />
+                  <span>Sector:</span>
+                </span>
+                {[
+                  { id: 'all', label: 'Todos' },
+                  { id: 'skincare', label: 'Skincare' },
+                  { id: 'apparel', label: 'Apparel' },
+                  { id: 'tech', label: 'Tech / SaaS' },
+                  { id: 'retail', label: 'Hogar / Retail' },
+                  { id: 'beverage', label: 'Bebidas' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedIndustry(item.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+                      selectedIndustry === item.id
+                        ? 'bg-purple-600 text-white shadow-sm'
+                        : 'bg-[#1c1d21] text-gray-400 hover:text-white hover:bg-white/5 border border-white/5'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Action Button */}
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-purple-600/25 transition shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Registrar Cliente</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-[#141518] border border-white/5 space-y-1">
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Clientes en Portfolio</span>
+                <div className="text-xl font-bold font-google text-white flex items-center space-x-2">
+                  <span>{brands.length}</span>
+                  <span className="text-xs font-mono font-normal text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                    Producción
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#141518] border border-white/5 space-y-1">
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Productos Catalogados</span>
+                <div className="text-xl font-bold font-google text-purple-300">
+                  {brands.reduce((acc, b) => acc + (b.products?.length || 0), 0)}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#141518] border border-white/5 space-y-1">
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Sectores Activos</span>
+                <div className="text-xl font-bold font-google text-blue-300">
+                  {new Set(brands.map(b => b.industry)).size} Verticales
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#141518] border border-white/5 space-y-1">
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Gobernanza de IA</span>
+                <div className="text-xl font-bold font-google text-emerald-400 flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>100% Calibrado</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Client Directory Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {brands
+                .filter(b => {
+                  const query = searchTerm.toLowerCase().trim();
+                  const matchesSearch = !query || 
+                    b.name.toLowerCase().includes(query) ||
+                    b.domain.toLowerCase().includes(query) ||
+                    b.tagline.toLowerCase().includes(query) ||
+                    b.products.some(p => p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query));
+                  const matchesIndustry = selectedIndustry === 'all' || b.industry === selectedIndustry;
+                  return matchesSearch && matchesIndustry;
+                })
+                .map((brand) => {
+                  const isActive = brand.id === currentBrand.id;
+                  const firstProduct = brand.products[0];
+
+                  return (
+                    <div
+                      key={brand.id}
+                      className={`rounded-2xl border p-5 flex flex-col justify-between transition-all duration-200 relative group ${
+                        isActive
+                          ? 'bg-[#15161b] border-purple-500/60 shadow-lg shadow-purple-950/20 ring-1 ring-purple-500/30'
+                          : 'bg-[#131417] border-[#26282c] hover:border-white/20 hover:bg-[#16171b]'
+                      }`}
+                    >
+                      {/* Active Client Badge */}
+                      {isActive && (
+                        <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-purple-600 text-[10px] font-bold text-white tracking-wide shadow-md flex items-center space-x-1">
+                          <Check className="w-3 h-3" />
+                          <span>ACTIVO EN SESIÓN</span>
+                        </div>
+                      )}
+
+                      <div>
+                        {/* Header: Logo, Name, Industry, Domain */}
+                        <div className="flex items-start space-x-3.5 mb-3">
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-inner border border-white/10 shrink-0 overflow-hidden"
+                            style={{ backgroundColor: brand.visuals.primaryColor }}
+                          >
+                            {brand.visuals.logoUrl ? (
+                              <img src={brand.visuals.logoUrl} alt={brand.name} className="w-full h-full object-cover" />
+                            ) : (
+                              brand.name.charAt(0)
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <h4 className="font-google font-bold text-sm text-white truncate">{brand.name}</h4>
+                              <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-gray-300 font-semibold shrink-0">
+                                {brand.industry}
+                              </span>
+                            </div>
+                            <a
+                              href={`https://${brand.domain}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[11px] font-mono text-purple-400 hover:text-purple-300 flex items-center space-x-1 mt-0.5 truncate"
+                            >
+                              <span>{brand.domain}</span>
+                              <ExternalLink className="w-2.5 h-2.5 inline" />
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Tagline */}
+                        <p className="text-xs text-gray-300 line-clamp-2 mb-3.5 leading-relaxed font-sans min-h-[32px]">
+                          {brand.tagline}
+                        </p>
+
+                        {/* Brand Palette Swatch */}
+                        <div className="mb-3.5 p-2 rounded-xl bg-black/30 border border-white/5 flex items-center justify-between text-xs">
+                          <span className="text-[10px] text-gray-400 font-medium">Paleta Cromática:</span>
+                          <div className="flex items-center space-x-1.5">
+                            <span 
+                              className="w-4 h-4 rounded-full border border-white/20 shadow-sm"
+                              style={{ backgroundColor: brand.visuals.primaryColor }}
+                              title={`Primario: ${brand.visuals.primaryColor}`}
+                            />
+                            <span 
+                              className="w-4 h-4 rounded-full border border-white/20 shadow-sm"
+                              style={{ backgroundColor: brand.visuals.secondaryColor }}
+                              title={`Secundario: ${brand.visuals.secondaryColor}`}
+                            />
+                            <span 
+                              className="w-4 h-4 rounded-full border border-white/20 shadow-sm"
+                              style={{ backgroundColor: brand.visuals.accentColor }}
+                              title={`Acento: ${brand.visuals.accentColor}`}
+                            />
+                            <span className="text-[10px] font-mono text-gray-400 ml-1">
+                              {brand.visuals.primaryColor}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Hero Product Info */}
+                        {firstProduct && (
+                          <div className="p-2.5 rounded-xl bg-[#17181c] border border-white/5 mb-3.5 text-xs space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-gray-200 truncate flex items-center space-x-1">
+                                <ShoppingBag className="w-3 h-3 text-emerald-400 shrink-0" />
+                                <span className="truncate">{firstProduct.name}</span>
+                              </span>
+                              <span className="text-[10px] font-mono font-bold text-emerald-400 shrink-0">
+                                ${firstProduct.price} USD
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono">
+                              <span>SKU: {firstProduct.sku}</span>
+                              <span className="text-gray-400">Margen: <strong className="text-gray-200">{firstProduct.marginPercent}%</strong></span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Guardrails summary */}
+                        <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1 pb-3">
+                          <span className="flex items-center space-x-1 text-emerald-400">
+                            <ShieldCheck className="w-3 h-3" />
+                            <span>{brand.guardrails.dos.length} Do's • {brand.guardrails.donts.length} Don'ts</span>
+                          </span>
+                          <span className="text-[10px] text-gray-400 truncate max-w-[130px]">
+                            {brand.persona.archetype.split('(')[0]}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Actions Footer */}
+                      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => {
+                            onSelectBrand(brand.id);
+                            setBrandData(brand);
+                            setActiveTab('visuals');
+                          }}
+                          className="flex-1 py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium border border-white/5 transition flex items-center justify-center space-x-1"
+                        >
+                          <Sliders className="w-3 h-3 text-purple-400" />
+                          <span>Guardrails</span>
+                        </button>
+
+                        <button
+                          onClick={() => onUseBrandInStudio(brand)}
+                          className="flex-1 py-1.5 px-3 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-white text-xs font-semibold border border-blue-500/30 transition flex items-center justify-center space-x-1"
+                        >
+                          <Sparkles className="w-3 h-3 text-blue-400" />
+                          <span>Abrir Studio</span>
+                        </button>
+
+                        {onDeleteBrand && brands.length > 1 && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`¿Estás seguro de eliminar el cliente "${brand.name}" del Brand Vault?`)) {
+                                onDeleteBrand(brand.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                            title={`Eliminar ${brand.name}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Empty State */}
+            {brands.filter(b => {
+              const query = searchTerm.toLowerCase().trim();
+              const matchesSearch = !query || 
+                b.name.toLowerCase().includes(query) ||
+                b.domain.toLowerCase().includes(query) ||
+                b.tagline.toLowerCase().includes(query);
+              const matchesIndustry = selectedIndustry === 'all' || b.industry === selectedIndustry;
+              return matchesSearch && matchesIndustry;
+            }).length === 0 && (
+              <div className="p-12 text-center rounded-2xl border border-dashed border-white/10 bg-[#121316] space-y-3">
+                <Building2 className="w-10 h-10 text-gray-600 mx-auto" />
+                <h4 className="font-google text-sm text-gray-300">No se encontraron clientes coincidentes</h4>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  Prueba cambiando el término de búsqueda o registra una nueva marca corporativa para comenzar a generar creativos.
+                </p>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md transition"
+                >
+                  + Registrar Nuevo Cliente
+                </button>
+              </div>
+            )}
+
+          </div>
+        )}
+
         {/* ========================================================================= */}
         {/* TAB 1: IDENTIDAD VISUAL */}
         {/* ========================================================================= */}
@@ -1191,6 +1529,21 @@ export const BrandVault: React.FC<BrandVaultProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal de Registro de Nuevo Cliente */}
+      <CreateClientModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreateClient={(newBrand) => {
+          if (onCreateBrand) {
+            onCreateBrand(newBrand);
+          }
+          onSelectBrand(newBrand.id);
+          setBrandData(newBrand);
+          setActiveTab('visuals');
+        }}
+        initialDomain=""
+      />
 
     </div>
   );

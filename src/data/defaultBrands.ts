@@ -348,6 +348,217 @@ export const DEFAULT_BRANDS: FullBrandContext[] = [
     ],
     agentDirectives: "Para Pulse AI Systems, los creativos deben proyectar autoridad tecnológica y sofisticación corporativa. El estilo visual debe ser sobrio pero futurista (glassmorphism oscuro, tipografía monospace para métricas, acentos púrpuras y cian).",
     updatedAt: "2026-10-21T18:00:00Z"
+  },
+  {
+    id: "brand-aurahome",
+    name: "Aura Home Living",
+    domain: "aurahomeliving.com",
+    industry: "retail",
+    tagline: "Diseño Nórdico Minimalista & Mobiliario Sostenible",
+    description: "Firma de diseño de interiores y mobiliario premium fabricado con maderas certificadas FSC y textiles orgánicos reciclados.",
+    clientEmail: "elena.vance@aurahomeliving.com",
+    clientContact: "Elena Vance (Directora Creativa)",
+    visuals: {
+      primaryColor: "#c29b38", // Warm Brass / Gold
+      secondaryColor: "#785c2c",
+      accentColor: "#e5c07b",
+      backgroundColor: "#121110",
+      gradientV1: "from-stone-900 via-stone-800 to-amber-950/40",
+      gradientV2: "from-amber-900/60 via-stone-900 to-neutral-950",
+      primaryFont: "Google Sans",
+      secondaryFont: "Inter",
+      logoUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80"
+    },
+    persona: {
+      archetype: "El Curador de Espacios (Mindful Living)",
+      toneOfVoice: [
+        "Minimalista y Sereno",
+        "Elegante y Atemporal",
+        "Enfocado en Sostenibilidad",
+        "Cálido y Acogedor"
+      ],
+      targetAudience: {
+        demographics: "Profesionales y parejas de 28 a 55 años que buscan elevar sus hogares con piezas duraderas de alta gama.",
+        painPoints: [
+          "Mobiliario de baja durabilidad ('fast furniture') que se desgasta rápido",
+          "Dificultad para coordinar espacios armónicos y luminosos",
+          "Marcas de lujo convencionales sin compromisos ecológicos reales"
+        ],
+        desires: [
+          "Espacios de descanso visual que reduzcan el estrés cotidiano",
+          "Materiales nobles con certificación de huella de carbono neutral",
+          "Diseños icónicos y atemporales que incrementen el valor del hogar"
+        ]
+      }
+    },
+    guardrails: {
+      dos: [
+        "Usar siempre tomas con luz natural envolvente y composición simétrica",
+        "Destacar la procedencia de la madera maciza FSC y telas orgánicas",
+        "Resaltar 'Envío con Seguro de Guante Blanco' y garantía estructural de 10 años",
+        "Mantener fondos sobrios en tonos tierra, crudo, lino y grafito"
+      ],
+      donts: [
+        "NO utilizar tipografías chillonas, cursivas informales ni efectos de neón",
+        "Evitar abarrotar los encuadres con accesorios innecesarios",
+        "NO mencionar 'muebles baratos' ni tácticas de liquidación masiva agresiva",
+        "NUNCA mostrar madera sin tratar o acabados con brillo sintético plástico"
+      ],
+      mandatoryDisclaimers: [
+        "Garantía estructural de 10 años en toda la colección de roble macizo.",
+        "Maderas con certificación de manejo forestal responsable FSC."
+      ],
+      prohibitedWords: [
+        "baratillo",
+        "descartable",
+        "sintético",
+        "imitación",
+        "oferta flash",
+        "plástico"
+      ]
+    },
+    products: [
+      {
+        id: "prod-aura-1",
+        name: "Sillón Lounge Nórdico 'Koben'",
+        sku: "AURA-KBN-LOU",
+        asin: "B0B8KBN901",
+        category: "Salón & Descanso",
+        price: 890.00,
+        marginPercent: 68,
+        stockStatus: "in_stock",
+        uvp: "Estructura de roble macizo ahumado con tapicería de lino belga hidrófugo y ergonomía envolvente.",
+        keyBenefits: [
+          "Ergonomía lumbar estudiada para máxima relajación",
+          "Lino belga de alta resistencia a manchas y fricción",
+          "Montaje artesanal con encastres invisibles"
+        ],
+        approvedClaims: [
+          "Madera 100% certificada FSC de bosques sostenibles",
+          "Galardonado con el Nordic Design Award 2025"
+        ],
+        activeForAds: true,
+        heroImage: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: "prod-aura-2",
+        name: "Lámpara de Pie Escultural 'Lumen Terra'",
+        sku: "AURA-LMN-022",
+        asin: "B0B8LMN022",
+        category: "Iluminación de Diseño",
+        price: 340.00,
+        marginPercent: 72,
+        stockStatus: "in_stock",
+        uvp: "Base de travertino natural con fuste de latón cepillado y difusor opalino con atenuación táctil continua.",
+        keyBenefits: [
+          "Luz cálida graduable de 2200K a 3000K",
+          "Base de piedra natural maciza antideslizante",
+          "Eficiencia energética LED Clase A++ con 50,000h de vida"
+        ],
+        approvedClaims: [
+          "Travertino natural extraído responsablemente",
+          "Consumo ultra-bajo de 12W con flujo de 1100 lúmenes"
+        ],
+        activeForAds: true,
+        heroImage: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    agentDirectives: "Para Aura Home Living, priorizar composiciones editoriales limpias inspiradas en Architectural Digest y Kinfolk. Usar tipografía equilibrada con amplio espaciado entre letras, colores crema, arena y roble.",
+    updatedAt: "2026-10-25T14:30:00Z"
+  },
+  {
+    id: "brand-verdevivo",
+    name: "Verde Vivo Superfoods",
+    domain: "verdevivo-nutrition.com",
+    industry: "beverage",
+    tagline: "Elixires Adaptógenos & Nutrición Celular Viva",
+    description: "Bebidas funcionales y tónicos prensados en frío enriquecidos con hongos medicinales orgánicos (Lion's Mane, Reishi y Cordyceps).",
+    clientEmail: "camila.rios@verdevivo-nutrition.com",
+    clientContact: "Camila Ríos (Directora de Crecimiento & D2C)",
+    visuals: {
+      primaryColor: "#16a34a", // Vibrant Botanical Green
+      secondaryColor: "#15803d",
+      accentColor: "#facc15", // Electric Citrus
+      backgroundColor: "#0c150e",
+      gradientV1: "from-emerald-950 via-green-900/60 to-slate-950",
+      gradientV2: "from-lime-950/70 via-stone-900 to-emerald-950",
+      primaryFont: "Google Sans",
+      secondaryFont: "Inter",
+      logoUrl: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=200&q=80"
+    },
+    persona: {
+      archetype: "El Sanador Vital (Vitality & Flow)",
+      toneOfVoice: [
+        "Enérgico y Optimista",
+        "Científico Botánico",
+        "Transparente y Dinámico",
+        "Inspirador y Cercano"
+      ],
+      targetAudience: {
+        demographics: "Emprendedores, creativos y biohackers de 22 a 42 años que buscan enfoque mental sostenido sin caídas de cafeína.",
+        painPoints: [
+          "Niebla mental, fatiga vespertina y picos de ansiedad causados por café convencional",
+          "Bebidas energéticas sintéticas cargadas de azúcar y edulcorantes artificiales",
+          "Sabor amargo o terroso en polvos de hongos tradicionales"
+        ],
+        desires: [
+          "Claridad cognitiva aguda y energía limpia durante toda la jornada",
+          "Ingredientes 100% orgánicos de origen silvestre con biodisponibilidad garantizada",
+          "Experiencia de sabor refrescante y delicioso listo para beber"
+        ]
+      }
+    },
+    guardrails: {
+      dos: [
+        "Enfatizar '0 Azúcar Añadida' y '100% Ingredientes Orgánicos Certificados'",
+        "Mostrar gotas de rocío, frescura botánica y colores verdes vivos",
+        "Mencionar 'Enfoque Mental sin Choques de Cafeína' en copys de rendimiento",
+        "Incluir llamada de suscripción mensual con descuento del 15%"
+      ],
+      donts: [
+        "NUNCA afirmar que previene o cura patologías clínicas o neurológicas",
+        "Evitar imágenes con colores artificiales fluorescentes o estética de bebida 'energy' barata",
+        "NO utilizar envases plásticos en los creativos (mostrar siempre latas de aluminio reciclable o vidrio)"
+      ],
+      mandatoryDisclaimers: [
+        "Certificación Orgánica USDA y aval de Buenas Prácticas de Manufactura (GMP).",
+        "No sustituye una alimentación variada. Consulte a su médico antes de consumir durante el embarazo."
+      ],
+      prohibitedWords: [
+        "químico",
+        "cura milagrosa",
+        "red bull",
+        "monstruo",
+        "fármaco",
+        "tóxico"
+      ]
+    },
+    products: [
+      {
+        id: "prod-verde-1",
+        name: "Elixir Focus Lion's Mane 330ml (Pack x12)",
+        sku: "VV-FOCUS-LMN-12",
+        asin: "B09VERDEV1",
+        category: "Bebidas Funcionales",
+        price: 44.00,
+        marginPercent: 76,
+        stockStatus: "in_stock",
+        uvp: "Tónico espumoso botánico con 2,000mg de extracto estandarizado de Lion's Mane silvestre y matcha ceremonial japonés.",
+        keyBenefits: [
+          "Claridad mental y concentración sostenida por 6 horas",
+          "Cero azúcar y solo 15 calorías por lata",
+          "Sabor cítrico yuzu refrescante"
+        ],
+        approvedClaims: [
+          "2,000mg de Lion's Mane puro con 30% beta-glucanos",
+          "Vegano, Non-GMO y libre de gluten certificado"
+        ],
+        activeForAds: true,
+        heroImage: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=800&q=80"
+      }
+    ],
+    agentDirectives: "Para Verde Vivo Superfoods, destacar frescura botánica, vitalidad y dinamismo. Usar luz brillante de día, salpicaduras limpias de agua fresca, hojas verdes y acentos en amarillo cítrico.",
+    updatedAt: "2026-10-26T11:00:00Z"
   }
 ];
 
@@ -359,6 +570,14 @@ export function loadStoredBrands(): FullBrandContext[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Merge any new default brands that might not be in user's older localStorage session
+        const storedIds = new Set(parsed.map((b: any) => b.id));
+        const missingDefaults = DEFAULT_BRANDS.filter(b => !storedIds.has(b.id));
+        if (missingDefaults.length > 0) {
+          const merged = [...parsed, ...missingDefaults];
+          localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(merged));
+          return merged;
+        }
         return parsed;
       }
     }

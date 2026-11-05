@@ -19,7 +19,9 @@ import {
   Package,
   Rocket,
   TrendingUp,
-  Target
+  Target,
+  Building2,
+  Plus
 } from 'lucide-react';
 
 interface LeftPanelProps {
@@ -34,6 +36,9 @@ interface LeftPanelProps {
   selectedProductId?: string;
   onSelectProduct?: (productId: string) => void;
   onOpenCampaignLauncher?: () => void;
+  brands?: FullBrandContext[];
+  onSelectBrandId?: (brandId: string) => void;
+  onOpenNewClientModal?: () => void;
 }
 
 export const LeftPanel: React.FC<LeftPanelProps> = ({
@@ -47,7 +52,10 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
   brandContext,
   selectedProductId,
   onSelectProduct,
-  onOpenCampaignLauncher
+  onOpenCampaignLauncher,
+  brands = [],
+  onSelectBrandId,
+  onOpenNewClientModal
 }) => {
   const [promptInput, setPromptInput] = useState<string>(activePrompt || STEP_PRESETS[currentStep].prompt);
   const [showLogs, setShowLogs] = useState<boolean>(true);
@@ -94,32 +102,58 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
               className="w-full px-3 py-2 rounded-xl bg-[#1e1f20] border border-[#3c4043] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono transition"
             />
           </div>
-          <div className="flex items-center space-x-2 pt-0.5">
-            <span className="text-[10px] text-gray-400">Presets rápidos:</span>
-            <button
-              type="button"
-              onClick={() => setUrlContext('https://lumiere-botanics.com/glow-serum')}
-              className="text-[10px] text-blue-400 hover:underline"
-            >
-              🌿 Skincare
-            </button>
-            <span className="text-gray-600">•</span>
-            <button
-              type="button"
-              onClick={() => setUrlContext('https://volt-stride.io/running-shoes')}
-              className="text-[10px] text-blue-400 hover:underline"
-            >
-              👟 Sneakers
-            </button>
-            <span className="text-gray-600">•</span>
-            <button
-              type="button"
-              onClick={() => setUrlContext('https://pulse-saas.com/ai-workspace')}
-              className="text-[10px] text-blue-400 hover:underline"
-            >
-              💼 SaaS B2B
-            </button>
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[10px] text-gray-400 font-medium">Clientes Activos:</span>
+            {brands.slice(0, 5).map((b) => {
+              const isSelected = brandContext?.id === b.id;
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => {
+                    setUrlContext(`https://${b.domain}`);
+                    if (onSelectBrandId) onSelectBrandId(b.id);
+                  }}
+                  className={`text-[10px] px-2 py-0.5 rounded-md font-medium transition flex items-center space-x-1 ${
+                    isSelected
+                      ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 shadow-sm'
+                      : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'
+                  }`}
+                  title={`Cargar ${b.name}`}
+                >
+                  <span>{b.name.split(' ')[0]}</span>
+                </button>
+              );
+            })}
+            {onOpenNewClientModal && (
+              <button
+                type="button"
+                onClick={onOpenNewClientModal}
+                className="text-[10px] px-2 py-0.5 rounded-md bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 font-medium flex items-center space-x-1 transition"
+                title="Registrar Nuevo Cliente en Vault"
+              >
+                <Plus className="w-2.5 h-2.5" />
+                <span>Nuevo Cliente</span>
+              </button>
+            )}
           </div>
+
+          {/* Check if typed URL belongs to an unregistered client */}
+          {urlContext && !brands.some(b => urlContext.toLowerCase().includes(b.domain.toLowerCase())) && onOpenNewClientModal && (
+            <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-between text-xs animate-in fade-in">
+              <span className="text-[11px] text-purple-200 truncate mr-2">
+                Dominio nuevo detectado. ¿Registrar en Vault?
+              </span>
+              <button
+                type="button"
+                onClick={onOpenNewClientModal}
+                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-semibold flex items-center space-x-1 shrink-0 shadow-sm transition"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Registrar</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Product Catalog Link (Fase 3: Data-Driven Context) */}
@@ -294,10 +328,10 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
           </div>
         </div>
 
-        {/* Quick Demo Steps Prompts Chips */}
+        {/* Enterprise Campaign Flow Prompts */}
         <div className="space-y-1.5">
           <div className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
-            Atajos de la Demo (3 Pasos):
+            Flujos Agénticos de Campaña:
           </div>
           <div className="space-y-1.5">
             <button

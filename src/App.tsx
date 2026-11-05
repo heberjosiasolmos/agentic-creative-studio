@@ -13,8 +13,9 @@ import { CampaignLauncherModal } from './components/CampaignLauncherModal';
 import { DriveModal } from './components/DriveModal';
 import { EmailModal } from './components/EmailModal';
 import { DetailModal } from './components/DetailModal';
+import { CreateClientModal } from './components/CreateClientModal';
 import { BrandProduct, DeploymentRecord } from './types';
-import { loadStoredAnalytics, saveAnalyticsToStorage, DEFAULT_ANALYTICS } from './data/defaultAnalytics';
+import { loadStoredAnalytics, saveAnalyticsToStorage, DEFAULT_ANALYTICS, generateDefaultAnalyticsForBrand } from './data/defaultAnalytics';
 import { loadStoredDeployments, saveDeploymentsToStorage, DEFAULT_DEPLOYMENTS } from './data/defaultDeployments';
 
 export const App: React.FC = () => {
@@ -62,6 +63,7 @@ export const App: React.FC = () => {
     return false;
   });
   const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState<boolean>(false);
   const [driveReady, setDriveReady] = useState<boolean>(false);
   const [emailReady, setEmailReady] = useState<boolean>(false);
 
@@ -231,7 +233,7 @@ export const App: React.FC = () => {
         id: `log-reset-${Date.now()}`,
         timestamp: new Date().toTimeString().split(' ')[0],
         tool: 'Gemini 2.0 Flash',
-        message: 'Estado de la demo reiniciado a fase inicial.',
+        message: 'Sesión y parámetros restablecidos a estado inicial.',
         type: 'info'
       }
     ]);
@@ -247,6 +249,49 @@ export const App: React.FC = () => {
     setBrands(newBrands);
     saveBrandsToStorage(newBrands);
     addLog('Brand Vault Engine', `Configuración y guardrails actualizados para ${updatedBrand.name}.`, 'success');
+  };
+
+  const handleCreateBrand = (newBrand: FullBrandContext) => {
+    const updatedBrands = [newBrand, ...brands];
+    setBrands(updatedBrands);
+    saveBrandsToStorage(updatedBrands);
+
+    // Dynamic analytics initialization for new client
+    const newBrandAnalytics = generateDefaultAnalyticsForBrand(newBrand);
+    const updatedAnalytics = { ...analytics, [newBrand.id]: newBrandAnalytics };
+    setAnalytics(updatedAnalytics);
+    saveAnalyticsToStorage(updatedAnalytics);
+
+    setActiveBrandId(newBrand.id);
+    setUrlContext(`https://${newBrand.domain}`);
+    setIsCreateClientModalOpen(false);
+
+    addLog(
+      'Brand Vault Engine',
+      `Cliente corporativo registrado: "${newBrand.name}" (${newBrand.industry}). Telemetría y catálogo de 1 producto inicial listos.`,
+      'success'
+    );
+  };
+
+  const handleDeleteBrand = (brandId: string) => {
+    const targetBrand = brands.find(b => b.id === brandId);
+    if (!targetBrand) return;
+    const remaining = brands.filter(b => b.id !== brandId);
+    if (remaining.length === 0) return;
+    setBrands(remaining);
+    saveBrandsToStorage(remaining);
+
+    if (activeBrandId === brandId) {
+      const nextBrand = remaining[0];
+      setActiveBrandId(nextBrand.id);
+      setUrlContext(`https://${nextBrand.domain}`);
+    }
+
+    addLog(
+      'Brand Vault Engine',
+      `Cliente "${targetBrand.name}" eliminado del Brand Vault.`,
+      'info'
+    );
   };
 
   const handleRestoreDefaults = () => {
@@ -414,6 +459,13 @@ export const App: React.FC = () => {
             selectedProductId={selectedProductId}
             onSelectProduct={setSelectedProductId}
             onOpenCampaignLauncher={() => setIsCampaignModalOpen(true)}
+            brands={brands}
+            onSelectBrandId={(id) => {
+              setActiveBrandId(id);
+              const found = brands.find(b => b.id === id);
+              if (found) setUrlContext(`https://${found.domain}`);
+            }}
+            onOpenNewClientModal={() => setIsCreateClientModalOpen(true)}
           />
 
           {/* Right Side: Dynamic Canvas, Formats Grid & Video Player */}
@@ -445,6 +497,8 @@ export const App: React.FC = () => {
           onSaveBrand={handleSaveBrand}
           onRestoreDefaults={handleRestoreDefaults}
           onUseBrandInStudio={handleUseBrandInStudio}
+          onCreateBrand={handleCreateBrand}
+          onDeleteBrand={handleDeleteBrand}
         />
       ) : currentView === 'analytics' ? (
         /* Performance Analytics & Creative Intelligence Hub (Fase 2) */
@@ -518,6 +572,14 @@ export const App: React.FC = () => {
         onClose={() => setIsCampaignModalOpen(false)}
         brand={activeVaultBrand}
         onDeploy={handleDeployCampaign}
+      />
+
+      {/* Global Onboarding Modal for New Client Brands */}
+      <CreateClientModal
+        isOpen={isCreateClientModalOpen}
+        onClose={() => setIsCreateClientModalOpen(false)}
+        onCreateClient={handleCreateBrand}
+        initialDomain={urlContext}
       />
 
     </div>

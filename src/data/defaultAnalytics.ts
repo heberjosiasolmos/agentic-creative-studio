@@ -463,11 +463,333 @@ export const DEFAULT_ANALYTICS: Record<string, BrandAnalyticsData> = {
         description: 'El anuncio con captura de interfaz tradicional llegó a frecuencia 5.1x. Los costos por lead subieron a $68.',
         metricImpact: 'Reemplazar por flujo visual dinámico de agentes con oferta de prueba anual.',
         actionLabel: 'Generar Variación Anti-Fatiga',
-        promptToExecute: 'Generar creatividad moderna para Pulse AI con agentes autónomos en acción, badge de "-20% Descuento Anual" y botón "Comenzar Demo".'
+        promptToExecute: 'Generar creatividad moderna para Pulse AI con agentes autónomos en acción, badge de "-20% Descuento Anual" y botón "Iniciar Prueba Gratuita".'
+      }
+    ]
+  },
+  'brand-aurahome': {
+    brandId: 'brand-aurahome',
+    blendedRoas: 5.12,
+    totalSpend: 42100,
+    totalRevenue: 215552,
+    avgCpa: 48.60,
+    avgCtr: 2.94,
+    creativeHealthScore: 84,
+    channels: [
+      {
+        channel: 'Meta Ads (Advantage+)',
+        spend: 22000,
+        roas: 5.40,
+        conversions: 450,
+        activeCreatives: 5,
+        fatiguedCreatives: 1
+      },
+      {
+        channel: 'Google Ads (Demand Gen)',
+        spend: 12500,
+        roas: 4.90,
+        conversions: 260,
+        activeCreatives: 4,
+        fatiguedCreatives: 0
+      },
+      {
+        channel: 'Pinterest Ads (Shopping)',
+        spend: 5100,
+        roas: 5.80,
+        conversions: 110,
+        activeCreatives: 3,
+        fatiguedCreatives: 0
+      },
+      {
+        channel: 'Amazon Sponsored Brands',
+        spend: 2500,
+        roas: 4.20,
+        conversions: 48,
+        activeCreatives: 2,
+        fatiguedCreatives: 1
+      }
+    ],
+    creatives: [
+      {
+        id: 'aura-perf-1',
+        formatId: 'ig-feed-square',
+        name: 'Sillón Koben: Lujo Silencioso & Roble FSC',
+        channel: 'Meta Ads',
+        aspectRatio: '1:1 Square',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80',
+        spend: 8900,
+        revenue: 51620,
+        roas: 5.80,
+        ctr: 3.65,
+        cpa: 42.00,
+        impressions: 380000,
+        frequency: 2.2,
+        fatigueScore: 18,
+        status: 'top_performer',
+        winningHook: '"Muebles para Toda la Vida: Roble Macizo FSC y Lino Belga"',
+        recommendedAction: 'Escalar presupuesto +30% en campañas de Prospecting CBO',
+        suggestedPrompt: 'Escalar creatividad de Sillón Koben con iluminación lateral suave y badge de "Garantía de 10 Años".'
+      },
+      {
+        id: 'aura-perf-2',
+        formatId: 'pin-vertical',
+        name: 'Lámpara Lumen Terra en Espacios Kinfolk',
+        channel: 'Meta Ads',
+        aspectRatio: '9:16 Vertical',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80',
+        spend: 4800,
+        revenue: 19680,
+        roas: 4.10,
+        ctr: 2.45,
+        cpa: 56.00,
+        impressions: 290000,
+        frequency: 4.4,
+        fatigueScore: 71,
+        status: 'fatigued',
+        winningHook: '"La Luz Perfecta para Desconectar al Caer la Noche"',
+        recommendedAction: 'Reemplazar por video en loop de encendido táctil en penumbra',
+        suggestedPrompt: 'Crear nueva variación para Lámpara Lumen Terra mostrando el tacto sobre el travertino y luz tenue a 2200K con oferta especial.'
+      }
+    ],
+    searchTerms: [
+      {
+        id: 'aura-st-1',
+        term: 'muebles de diseño nórdico roble macizo',
+        channel: 'Google Search',
+        impressions: 18400,
+        clicks: 1620,
+        ctr: 8.80,
+        roas: 6.40,
+        conversionRate: 4.8,
+        coverageStatus: 'uncovered',
+        intentCategory: 'problem_solution',
+        suggestedPrompt: 'Crear anuncio display para "muebles de diseño nórdico roble macizo": destacar garantía 10 años, envío seguro y sello FSC.'
+      }
+    ],
+    aiStrategicInsights: [
+      {
+        id: 'aura-insight-1',
+        type: 'scale',
+        title: 'Oportunidad de Escalamiento en Pinterest & Meta High-AOV',
+        description: 'El ticket promedio de $890 USD está logrando un ROAS de 5.8x en audiencias de interiorismo y arquitectura.',
+        metricImpact: 'Proyección de +$38,000 USD de facturación mensual al duplicar entrega en audiencias lookalike 1%.',
+        actionLabel: 'Escalar Campaña High-Ticket',
+        promptToExecute: 'Generar creatividad editorial estilo Architectural Digest para Sillón Koben en salón minimalista bañado en luz solar.'
+      }
+    ]
+  },
+  'brand-verdevivo': {
+    brandId: 'brand-verdevivo',
+    blendedRoas: 4.88,
+    totalSpend: 28400,
+    totalRevenue: 138592,
+    avgCpa: 14.80,
+    avgCtr: 4.10,
+    creativeHealthScore: 79,
+    channels: [
+      {
+        channel: 'Meta Ads (Reels & Feed)',
+        spend: 14500,
+        roas: 5.10,
+        conversions: 980,
+        activeCreatives: 5,
+        fatiguedCreatives: 1
+      },
+      {
+        channel: 'TikTok Spark Ads',
+        spend: 8200,
+        roas: 4.95,
+        conversions: 550,
+        activeCreatives: 4,
+        fatiguedCreatives: 0
+      },
+      {
+        channel: 'Google Ads (Demand Gen)',
+        spend: 4200,
+        roas: 4.25,
+        conversions: 280,
+        activeCreatives: 3,
+        fatiguedCreatives: 1
+      },
+      {
+        channel: 'Amazon Sponsored Brands',
+        spend: 1500,
+        roas: 4.60,
+        conversions: 105,
+        activeCreatives: 2,
+        fatiguedCreatives: 0
+      }
+    ],
+    creatives: [
+      {
+        id: 'vv-perf-1',
+        formatId: 'tt-ad-vertical',
+        name: 'Elixir Focus: Reemplazando el Café de la Tarde',
+        channel: 'TikTok',
+        aspectRatio: '9:16 Vertical',
+        thumbnailUrl: 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80',
+        spend: 5200,
+        revenue: 28600,
+        roas: 5.50,
+        ctr: 5.20,
+        cpa: 12.50,
+        impressions: 460000,
+        frequency: 2.1,
+        fatigueScore: 19,
+        status: 'top_performer',
+        winningHook: '"El secreto de Silicon Valley: 2,000mg de Lion\'s Mane sin choques de cafeína"',
+        recommendedAction: 'Duplicar presupuesto y expandir a audiencias de productividad y biohacking',
+        suggestedPrompt: 'Crear video TikTok dinámico mostrando apertura de lata de Verde Vivo con sonido ASMR y badge "Suscripción con 15% OFF".'
+      }
+    ],
+    searchTerms: [
+      {
+        id: 'vv-st-1',
+        term: 'bebida adaptógena para concentración sin cafeína',
+        channel: 'TikTok Search',
+        impressions: 22000,
+        clicks: 2100,
+        ctr: 9.54,
+        roas: 5.90,
+        conversionRate: 6.8,
+        coverageStatus: 'uncovered',
+        intentCategory: 'problem_solution',
+        suggestedPrompt: 'Generar creativo en formato vertical destacando "0 Azúcar • 2,000mg Lion\'s Mane • Energía Mental Sostenida 6 Horas".'
+      }
+    ],
+    aiStrategicInsights: [
+      {
+        id: 'vv-insight-1',
+        type: 'scale',
+        title: 'Explosión de Demanda en Términos de Lion\'s Mane D2C',
+        description: 'La tasa de conversión en TikTok y Meta para el pack x12 Focus subió a 6.8% con costo por adquisición de $12.50.',
+        metricImpact: 'Oportunidad de captura de mercado antes de que los competidores aumenten el CPC en búsquedas de adaptógenos.',
+        actionLabel: 'Lanzar Campaña TikTok Spark',
+        promptToExecute: 'Generar creatividad vertical ultra-fresca de Verde Vivo Focus con condensación, gotas de agua y badge "-15% Primera Compra".'
       }
     ]
   }
 };
+
+export function generateDefaultAnalyticsForBrand(brand: any): BrandAnalyticsData {
+  const brandName = brand.name || 'Cliente';
+  const prodName = brand.products && brand.products[0] ? brand.products[0].name : 'Producto Principal';
+  const heroImg = brand.products && brand.products[0] && brand.products[0].heroImage 
+    ? brand.products[0].heroImage 
+    : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80';
+
+  return {
+    brandId: brand.id,
+    blendedRoas: 4.75,
+    totalSpend: 26800,
+    totalRevenue: 127300,
+    avgCpa: 22.50,
+    avgCtr: 3.65,
+    creativeHealthScore: 82,
+    channels: [
+      {
+        channel: 'Meta Ads (Advantage+)',
+        spend: 14200,
+        roas: 5.10,
+        conversions: 630,
+        activeCreatives: 5,
+        fatiguedCreatives: 1
+      },
+      {
+        channel: 'Google Ads (Demand Gen)',
+        spend: 7800,
+        roas: 4.45,
+        conversions: 350,
+        activeCreatives: 4,
+        fatiguedCreatives: 0
+      },
+      {
+        channel: 'TikTok Spark Ads',
+        spend: 3200,
+        roas: 4.20,
+        conversions: 140,
+        activeCreatives: 2,
+        fatiguedCreatives: 0
+      },
+      {
+        channel: 'Amazon Sponsored Brands',
+        spend: 1600,
+        roas: 4.80,
+        conversions: 70,
+        activeCreatives: 2,
+        fatiguedCreatives: 0
+      }
+    ],
+    creatives: [
+      {
+        id: `${brand.id}-perf-1`,
+        formatId: 'ig-story-vertical',
+        name: `${prodName}: Campaña Omnicanal de Conversión`,
+        channel: 'Meta Ads',
+        aspectRatio: '9:16 Vertical',
+        thumbnailUrl: heroImg,
+        spend: 6800,
+        revenue: 36720,
+        roas: 5.40,
+        ctr: 4.10,
+        cpa: 18.20,
+        impressions: 340000,
+        frequency: 2.1,
+        fatigueScore: 22,
+        status: 'top_performer',
+        winningHook: `Descubre la excelencia de ${brandName}: Calidad garantizada y envío express`,
+        recommendedAction: 'Escalar presupuesto +25% en audiencias optimizadas',
+        suggestedPrompt: `Generar variaciones de alto impacto para ${brandName} enfocadas en ${prodName} con badge de oferta especial.`
+      },
+      {
+        id: `${brand.id}-perf-2`,
+        formatId: 'google-display-mrec',
+        name: `${prodName}: Banner de Retargeting de Alta Intención`,
+        channel: 'Google Ads',
+        aspectRatio: '300x250 Display',
+        thumbnailUrl: heroImg,
+        spend: 3400,
+        revenue: 12580,
+        roas: 3.70,
+        ctr: 2.15,
+        cpa: 31.00,
+        impressions: 210000,
+        frequency: 4.6,
+        fatigueScore: 74,
+        status: 'fatigued',
+        winningHook: `Última oportunidad: Obtén ${prodName} con entrega prioritaria`,
+        recommendedAction: 'Actualizar visual y renovar el copy promocional',
+        suggestedPrompt: `Re-calibrar banner display para ${brandName} con iluminación fresca y llamado a la acción más directo.`
+      }
+    ],
+    searchTerms: [
+      {
+        id: `${brand.id}-st-1`,
+        term: `${prodName.toLowerCase()} comprar online`,
+        channel: 'Google Search',
+        impressions: 14200,
+        clicks: 1240,
+        ctr: 8.73,
+        roas: 5.60,
+        conversionRate: 5.1,
+        coverageStatus: 'uncovered',
+        intentCategory: 'problem_solution',
+        suggestedPrompt: `Crear anuncio enfocado en "${prodName.toLowerCase()} comprar online": enfatizar garantía de satisfacción y despacho en 24h.`
+      }
+    ],
+    aiStrategicInsights: [
+      {
+        id: `${brand.id}-insight-1`,
+        type: 'scale',
+        title: `Oportunidad de Escalamiento para ${brandName}`,
+        description: `El producto ${prodName} registra una respuesta excelente con ROAS de 5.4x en Meta Ads y Google Demand Gen.`,
+        metricImpact: 'Proyección de incremento del 35% en conversiones al activar variantes generadas con Gemini 2.0 Flash.',
+        actionLabel: 'Escalar en Creative Studio',
+        promptToExecute: `Generar nueva suite de 12 creativos para ${brandName} centrados en ${prodName} con estilo dinámico y alta conversión.`
+      }
+    ]
+  };
+}
 
 const STORAGE_KEY = 'gemini_creative_analytics_v1';
 

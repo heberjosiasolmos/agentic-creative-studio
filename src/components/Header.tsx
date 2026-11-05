@@ -55,21 +55,21 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="h-16 border-b border-[#282a2c] bg-[#131314]/95 backdrop-blur-md px-5 flex items-center justify-between shrink-0 select-none z-30">
       
       {/* Brand, Title & View Switcher */}
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+      <div className="flex items-center space-x-3 xl:space-x-4 shrink-0">
+        <div className="flex items-center space-x-3 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
             <Sparkles className="w-5 h-5 text-white animate-pulse-slow" />
           </div>
-          <div>
+          <div className="shrink-0">
             <div className="flex items-center space-x-2">
-              <span className="font-google font-bold text-white text-base tracking-tight">Gemini Creative Studio</span>
-              <span className="text-[10px] font-mono uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-semibold">
-                Summit Edition
+              <span className="font-google font-bold text-white text-base tracking-tight whitespace-nowrap">Gemini Studio</span>
+              <span className="text-[9px] font-mono uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-full font-semibold tracking-wide whitespace-nowrap">
+                Enterprise Platform
               </span>
             </div>
-            <p className="text-xs text-gray-400 flex items-center space-x-1.5">
+            <p className="text-xs text-gray-400 flex items-center space-x-1.5 whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              <span>Marca: <strong className="text-gray-200">{activeBrandName}</strong></span>
+              <span>Cliente: <strong className="text-gray-200">{activeBrandName}</strong></span>
             </p>
           </div>
         </div>
@@ -239,15 +239,16 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        {/* Auto demo run button (Studio only) */}
+        {/* Pipeline autónomo run button (Studio only) */}
         {currentView === 'studio' && (
           <button
             onClick={onRunAutoDemo}
             disabled={isGenerating}
             className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-medium shadow-md shadow-blue-500/20 transition disabled:opacity-50"
+            title="Ejecutar pipeline completo de generación, feedback y despacho"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
-            <span>Auto Demo</span>
+            <span>Pipeline Autónomo</span>
           </button>
         )}
 
@@ -267,7 +268,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onReset}
             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-200 transition"
-            title="Reiniciar Demo a Estado Cero"
+            title="Restablecer Sesión y Parámetros"
           >
             <RotateCcw className="w-4 h-4" />
           </button>

@@ -151,8 +151,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({
           </p>
 
           <div className="pt-2 border-t border-white/10 text-xs text-gray-400">
-            <div className="font-semibold text-white">Equipo de Data & Creatividad Agentica</div>
-            <div>Google Cloud Summit Demo Edition • Mindgruve Lab</div>
+            <div className="font-semibold text-white">Equipo de Data & Creatividad Agéntica</div>
+            <div>Gemini Agentic Marketing Platform • Enterprise Production</div>
           </div>
         </div>
 
