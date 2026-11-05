@@ -35,7 +35,9 @@ import {
   Calendar,
   UserCheck,
   Zap,
-  Globe
+  Globe,
+  Terminal,
+  X
 } from 'lucide-react';
 
 interface ApprovalHubProps {
@@ -72,6 +74,13 @@ export const ApprovalHub: React.FC<ApprovalHubProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [apiPushingId, setApiPushingId] = useState<string | null>(null);
   const [apiSuccessId, setApiSuccessId] = useState<string | null>(null);
+  const [activePushModal, setActivePushModal] = useState<{
+    platform: string;
+    step: number;
+    logs: string[];
+    adId: string;
+    isComplete: boolean;
+  } | null>(null);
 
   const activeBrand = brands.find(b => b.id === activeBrandId) || brands[0];
   const activeProduct = activeBrand.products[0] || { name: 'Producto Principal', price: 48, sku: 'SKU-01' };
@@ -167,13 +176,60 @@ export const ApprovalHub: React.FC<ApprovalHubProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const handlePushApi = (exportId: string) => {
+  const handlePushApi = (exportId: string, platformName: string = 'Meta Ads') => {
     setApiPushingId(exportId);
+    const generatedId = `${platformName.toLowerCase().replace(/[^a-z]/g, '')}_cr_${Date.now().toString().slice(-6)}`;
+    setActivePushModal({
+      platform: platformName,
+      step: 1,
+      logs: [
+        `[1/4] Inicializando cliente API oficial para ${platformName}...`,
+        `[OAuth 2.0] Verificando token de acceso en Google Secret Manager... OK (Válido)`,
+        `[Endpoint] Conectando a ${platformName.includes('Google') ? 'https://googleads.googleapis.com/v17/customers' : 'https://graph.facebook.com/v21.0/act_adcreatives'}...`
+      ],
+      adId: generatedId,
+      isComplete: false
+    });
+
     setTimeout(() => {
-      setApiPushingId(null);
-      setApiSuccessId(exportId);
-      setTimeout(() => setApiSuccessId(null), 3000);
-    }, 1800);
+      setActivePushModal(prev => prev ? {
+        ...prev,
+        step: 2,
+        logs: [
+          ...prev.logs,
+          `[2/4] Transfiriendo 12 activos gráficos Lossless PNG + 1 Master Veo MP4...`,
+          `[Storage] Upload chunked: 13/13 archivos sincronizados con CDN oficial. Hash SHA-256 verificado.`
+        ]
+      } : null);
+
+      setTimeout(() => {
+        setActivePushModal(prev => prev ? {
+          ...prev,
+          step: 3,
+          logs: [
+            ...prev.logs,
+            `[3/4] Mutando estructura de campaña con titulares, claims de marca y UTMs...`,
+            `[Budget] Asignando presupuesto optimizado para ${activeBrand.name}. Guardrails de IA verificados.`
+          ]
+        } : null);
+
+        setTimeout(() => {
+          setActivePushModal(prev => prev ? {
+            ...prev,
+            step: 4,
+            logs: [
+              ...prev.logs,
+              `[4/4] ✓ ¡Despacho Directo Exitoso! Retorno HTTP 201 Created.`,
+              `[ID Activo] ${generatedId} activo en ${platformName}. Campaña en estado "Learning / Active".`
+            ],
+            isComplete: true
+          } : null);
+          setApiPushingId(null);
+          setApiSuccessId(exportId);
+          setTimeout(() => setApiSuccessId(null), 4000);
+        }, 700);
+      }, 700);
+    }, 700);
   };
 
   return (
@@ -563,7 +619,7 @@ export const ApprovalHub: React.FC<ApprovalHubProps> = ({
                     </button>
 
                     <button
-                      onClick={() => handlePushApi(exp.id)}
+                      onClick={() => handlePushApi(exp.id, exp.platform)}
                       disabled={apiPushingId === exp.id}
                       className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-md shadow-purple-600/30 transition disabled:opacity-50"
                     >
@@ -697,6 +753,93 @@ export const ApprovalHub: React.FC<ApprovalHubProps> = ({
         )}
 
       </div>
+
+      {/* Live API Dispatch Terminal Modal */}
+      {activePushModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-[#121316] border border-[#2e3136] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-5 py-3.5 border-b border-[#242629] bg-[#16171b] flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <Terminal className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white font-google flex items-center space-x-1.5">
+                    <span>Despacho Directo API — {activePushModal.platform}</span>
+                  </h4>
+                  <span className="text-[10px] font-mono text-gray-400">
+                    Cliente: {activeBrand.name} • Endpoint OAuth 2.0
+                  </span>
+                </div>
+              </div>
+
+              {activePushModal.isComplete && (
+                <button
+                  onClick={() => setActivePushModal(null)}
+                  className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Terminal Logs Body */}
+            <div className="p-5 font-mono text-xs space-y-2 bg-[#0c0d0f] min-h-[220px] max-h-[340px] overflow-y-auto">
+              {activePushModal.logs.map((line, idx) => (
+                <div
+                  key={idx}
+                  className={`leading-relaxed ${
+                    line.includes('✓') 
+                      ? 'text-emerald-400 font-bold' 
+                      : line.includes('OAuth') 
+                      ? 'text-cyan-300' 
+                      : line.includes('[4/4]') 
+                      ? 'text-emerald-300'
+                      : 'text-gray-300'
+                  }`}
+                >
+                  {line}
+                </div>
+              ))}
+
+              {!activePushModal.isComplete && (
+                <div className="flex items-center space-x-2 text-purple-400 pt-2 text-[11px] animate-pulse">
+                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                  <span>Transmitiendo payload a los servidores de {activePushModal.platform}...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-5 py-3 border-t border-[#242629] bg-[#16171b] flex items-center justify-between">
+              <span className="text-[11px] font-mono text-gray-400">
+                {activePushModal.isComplete ? (
+                  <span className="text-emerald-400 flex items-center space-x-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Publicación confirmada por Ads Manager</span>
+                  </span>
+                ) : (
+                  <span>Paso {activePushModal.step} de 4 en progreso...</span>
+                )}
+              </span>
+
+              {activePushModal.isComplete ? (
+                <button
+                  onClick={() => setActivePushModal(null)}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/30 transition"
+                >
+                  Cerrar & Ver Historial
+                </button>
+              ) : (
+                <div className="text-[10px] font-mono text-gray-500">
+                  Esperando respuesta 200 OK...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

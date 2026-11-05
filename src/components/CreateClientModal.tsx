@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FullBrandContext, BrandProduct } from '../types';
+import { getDefaultPlatformConnections } from '../data/defaultBrands';
 import { 
   Building2, 
   X, 
@@ -152,7 +153,8 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
         }
       ],
       agentDirectives: `Para ${name.trim()}, mantener un tono equilibrado y diseño minimalista. Usar la paleta corporativa (${primaryColor} y ${accentColor}) en todos los formatos generados.`,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      platformConnections: getDefaultPlatformConnections(name.trim(), cleanDomain)
     };
 
     onCreateClient(newBrand);

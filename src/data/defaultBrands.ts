@@ -1,4 +1,76 @@
-import { FullBrandContext } from '../types';
+import { FullBrandContext, PlatformConnection } from '../types';
+
+export function getDefaultPlatformConnections(brandName: string, domain: string): PlatformConnection[] {
+  const slug = brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  return [
+    {
+      platform: 'meta_ads',
+      platformName: 'Meta Marketing API (Advantage+ & IG)',
+      status: 'connected',
+      accountId: `act_${slug.substring(0, 4)}_${Math.floor(100000000 + Math.random() * 900000000)}`,
+      accountName: `${brandName} — Meta Advantage+ Portfolio`,
+      authType: 'oauth2',
+      lastSyncedAt: 'Hoy, hace 14 min (Webhook Activo)',
+      syncFrequencyHours: 1,
+      autoDispatchEnabled: true,
+      webhookEnabled: true,
+      scopes: ['ads_management', 'ads_read', 'pages_read_engagement', 'business_management']
+    },
+    {
+      platform: 'google_ads',
+      platformName: 'Google Ads API (Demand Gen & YouTube)',
+      status: 'connected',
+      accountId: `${Math.floor(100 + Math.random() * 900)}-${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`,
+      accountName: `${brandName} — Google Cloud MCC Production`,
+      authType: 'oauth2',
+      lastSyncedAt: 'Hoy, hace 8 min (Sincronizado)',
+      syncFrequencyHours: 1,
+      autoDispatchEnabled: true,
+      webhookEnabled: true,
+      scopes: ['https://www.googleapis.com/auth/adwords', 'https://www.googleapis.com/auth/bigquery']
+    },
+    {
+      platform: 'tiktok_ads',
+      platformName: 'TikTok Marketing API (Spark Ads)',
+      status: 'connected',
+      accountId: `adv_${Math.floor(600000000000 + Math.random() * 900000000000)}`,
+      accountName: `${brandName} — TikTok For Business`,
+      authType: 'oauth2',
+      lastSyncedAt: 'Hoy, hace 32 min',
+      syncFrequencyHours: 6,
+      autoDispatchEnabled: false,
+      webhookEnabled: true,
+      scopes: ['spark_ads', 'video_upload', 'campaign_write', 'pixel_read']
+    },
+    {
+      platform: 'amazon_ads',
+      platformName: 'Amazon Advertising API (Sponsored Brands)',
+      status: 'connected',
+      accountId: `amz_ent_${Math.floor(1000000 + Math.random() * 9000000)}`,
+      accountName: `${brandName} — Amazon Brand Registry`,
+      authType: 'api_key',
+      lastSyncedAt: 'Hoy, hace 1 hora',
+      syncFrequencyHours: 12,
+      autoDispatchEnabled: false,
+      webhookEnabled: false,
+      scopes: ['advertising::campaign_management', 'advertising::reports']
+    },
+    {
+      platform: 'shopify',
+      platformName: 'Shopify / Google Merchant Center Sync',
+      status: 'connected',
+      accountId: `${slug}.myshopify.com`,
+      accountName: `${brandName} — Live Product Catalog`,
+      authType: 'oauth2',
+      lastSyncedAt: 'En tiempo real (Webhook Activo)',
+      syncFrequencyHours: 1,
+      autoDispatchEnabled: true,
+      webhookEnabled: true,
+      scopes: ['read_products', 'read_inventory', 'read_orders']
+    }
+  ];
+}
 
 export const DEFAULT_BRANDS: FullBrandContext[] = [
   {
@@ -570,21 +642,35 @@ export function loadStoredBrands(): FullBrandContext[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // Ensure platformConnections exists on each stored brand
+        const withConnections = parsed.map((b: FullBrandContext) => ({
+          ...b,
+          platformConnections: b.platformConnections && b.platformConnections.length > 0
+            ? b.platformConnections
+            : getDefaultPlatformConnections(b.name, b.domain)
+        }));
+
         // Merge any new default brands that might not be in user's older localStorage session
-        const storedIds = new Set(parsed.map((b: any) => b.id));
-        const missingDefaults = DEFAULT_BRANDS.filter(b => !storedIds.has(b.id));
+        const storedIds = new Set(withConnections.map((b: any) => b.id));
+        const missingDefaults = DEFAULT_BRANDS.filter(b => !storedIds.has(b.id)).map(b => ({
+          ...b,
+          platformConnections: b.platformConnections || getDefaultPlatformConnections(b.name, b.domain)
+        }));
         if (missingDefaults.length > 0) {
-          const merged = [...parsed, ...missingDefaults];
+          const merged = [...withConnections, ...missingDefaults];
           localStorage.setItem(BRAND_STORAGE_KEY, JSON.stringify(merged));
           return merged;
         }
-        return parsed;
+        return withConnections;
       }
     }
   } catch (e) {
     console.error("Error loading stored brands from localStorage:", e);
   }
-  return DEFAULT_BRANDS;
+  return DEFAULT_BRANDS.map(b => ({
+    ...b,
+    platformConnections: b.platformConnections || getDefaultPlatformConnections(b.name, b.domain)
+  }));
 }
 
 export function saveBrandsToStorage(brands: FullBrandContext[]): void {

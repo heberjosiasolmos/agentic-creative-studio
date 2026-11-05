@@ -150,6 +150,23 @@ export interface FullBrandContext {
   products: BrandProduct[];
   agentDirectives: string; // Directivas permanentes para Gemini 2.0, Imagen 3 y Veo
   updatedAt: string;
+  platformConnections?: PlatformConnection[];
+}
+
+export type AdPlatformType = 'google_ads' | 'meta_ads' | 'tiktok_ads' | 'amazon_ads' | 'shopify';
+
+export interface PlatformConnection {
+  platform: AdPlatformType;
+  platformName: string;
+  status: 'connected' | 'disconnected' | 'syncing' | 'error';
+  accountId: string;
+  accountName: string;
+  authType: 'oauth2' | 'service_account' | 'api_key';
+  lastSyncedAt?: string;
+  syncFrequencyHours: number;
+  autoDispatchEnabled: boolean;
+  webhookEnabled: boolean;
+  scopes: string[];
 }
 
 // ----------------------------------------------------
