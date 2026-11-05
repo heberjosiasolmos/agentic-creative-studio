@@ -63,7 +63,10 @@ export const App: React.FC = () => {
     return false;
   });
   const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState<boolean>(false);
+  const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('new-client')) return true;
+    return false;
+  });
   const [driveReady, setDriveReady] = useState<boolean>(false);
   const [emailReady, setEmailReady] = useState<boolean>(false);
 
@@ -577,7 +580,12 @@ export const App: React.FC = () => {
       {/* Global Onboarding Modal for New Client Brands */}
       <CreateClientModal
         isOpen={isCreateClientModalOpen}
-        onClose={() => setIsCreateClientModalOpen(false)}
+        onClose={() => {
+          setIsCreateClientModalOpen(false);
+          if (typeof window !== 'undefined' && window.location.hash.includes('new-client')) {
+            window.location.hash = '';
+          }
+        }}
         onCreateClient={handleCreateBrand}
         initialDomain={urlContext}
       />
